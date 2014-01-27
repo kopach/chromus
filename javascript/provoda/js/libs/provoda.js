@@ -12,6 +12,14 @@ var sync_sender = {
 	setRootModel: function(md) {
 		this.root_model = md;
 	},
+	removeSyncStream: function(stream) {
+		if (!this.sockets[stream.id]) {
+			return;
+		}
+		this.sockets_m_index[stream.id] = null;
+		this.sockets[stream.id] = null;
+		this.streams_list = spv.arrayExclude(this.streams_list, stream);
+	},
 	addSyncStream: function(start_md, stream) {
 		this.sockets_m_index[stream.id] = {};
 		this.sockets[stream.id] = stream;

@@ -148,12 +148,21 @@ big_timer = {
 				}
 			};
 
+			port.onDisconnect.addListener(function() {
+				provoda.sync_s.removeSyncStream(stream);
+			});
+
 			port.onMessage.addListener(function(data) {
 
-				if (data.action == 'init_sender') {
+				if (data.action == 'init_root') {
+					provoda.sync_s.addSyncStream(su, stream);
+				} else if (data.action == 'init_sender') {
 
-				var md = su.start_page.createLFMPagePlaylists(data.message);
+					var md = su.start_page.createLFMPagePlaylists(data.message);
 					provoda.sync_s.addSyncStream(md, stream);
+
+
+					
 				} else if (data.action == 'rpc_legacy') {
 					var message = data.message;
 					var tmd = provoda.getModelById(message.provoda_id);

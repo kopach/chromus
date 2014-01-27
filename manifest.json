@@ -10,7 +10,7 @@
    "browser_action": {
      "default_icon": "lastfm_128.png", 
      "default_title": "Last.fm free music player",      
-     "default_popup": "popup.html"        
+     "default_popup": "javascript/provoda/popup.html"        
    },
    "web_accessible_resources": [
      "javascript/provoda/pv-iframe/view_proxy.js",
