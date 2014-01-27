@@ -10,7 +10,7 @@ define(['provoda', 'jquery', 'spv'], function(provoda, $, spv) {
   {{vis_lite_view && vmp_show && 'selected_song'}} 
  */
 var song_sample = {
-	string: '<span pv-events="click:showSong">▶</span>',
+	string: '<a class="sm2_button" href="javascript:void()" pv-events="click:showSong">▶</a>',
 	sampler: null,
 	root_node: document.createElement('span')
 };
@@ -40,8 +40,8 @@ provoda.View.extendTo(SongView, {
 	createBase: function() {
 		this.c = getSample(song_sample, this.PvTemplate);
 		this.createTemplate();
-		var outside_li = spv.getTargetField(this.root_view.dom_storage.songs, [this.parent_view.state('item_num'), this.undetailed_states.item_num]);
-		$(outside_li.con).prepend(this.c);
+		var outside_comment_node = spv.getTargetField(this.root_view.dom_storage.songs, [this.parent_view.state('item_num'), this.undetailed_states.item_num]);
+		$(outside_comment_node).after(this.c);
 	},
 	tpl_events: {
 		showSong: function(e) {

@@ -1,27 +1,35 @@
-<html>
-    <head>
-    <script src="javascript/xml2json.js"></script>
-    <!--<script src="javascript/sm2.js"></script>
-    <script>
-      soundManager.url = 'http://soundmanagercache.googlecode.com/svn/trunk/';
-    </script>
-    -->
-    <script src="javascript/md5.js"></script>
-    <script src="javascript/cache.js"></script>
-    <script src="javascript/utils.js?rnd=6"></script>    
-    <script src="javascript/scrobbler.js?rnd=13"></script>
-    <script src="javascript/vk.js?rnd=17"></script>
-    <script src="javascript/music_manager.js?rnd=20"></script>
-    <script src="javascript/browser_detect.js?rnd=1"></script>
-    <!--<script src="javascript/banner.js?rnd=21"></script>-->
-    <script src="javascript/background.js"></script>
+<!DOCTYPE html>
+<html class="not-as-application">
+  <head>
+  <meta charset="utf-8">
+  <title>Surump</title>
+  <link rel="shortcut icon" id="dynamic-favicon"  href="icons/icon16.png"/>
+  <link rel="stylesheet" href="css/master.css">
+  <script data-main="javascript/provoda/loader" src="javascript/provoda/js/common-libs/require-2.1.6.min.js"></script>
+  </head>
+  
+  <body>
+    <div class="app_wrap">
+      <div class="start_page" pv-nest="start_page">
+        <div pv-nest="lfm_pages">
+          <div class="playlist_con" pv-nest="main_list">
+            <div pv-nest="songs-list">
+              <span class="play_button"></span>
+              <span class="pause_button"></span>
+              <span class="switch_file_button"></span>
 
-    </head>
-    <body>
-      <div id="vk_search"></div>
-      <script type="text/javascript" src="javascript/ga.js"></script>
+              <span class="remove_song_button"></span>
 
-      <img id="lastfm_icon" src="lastfm_19.png" width="19" height="19"/>
-      <canvas id="canvas" width="19" height="19" />
-    </body>
-</html>
+              <span pv-text="{{artist}}"></span>
+              - 
+              <span pv-text="{{track}}"></span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <div id="ui-samples" style="display:none">
+    </div>
+ </body>
+ </html>

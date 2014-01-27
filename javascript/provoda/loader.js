@@ -2,6 +2,7 @@ var big_timer;
 (function(){
 "use strict";
 requirejs.config({
+	baseUrl: 'javascript/provoda',
 	paths: {
 		provoda: 'js/libs/provoda',
 		spv: 'js/libs/spv',
@@ -92,58 +93,92 @@ big_timer = {
 		});
 	}
 
-	var stream = {
-		iframe: null,
-		id: 11,
-		buildTree: function(tree_by_array) {
-			//console.log(tree_by_array);
-
-			this.iframe.contentWindow.postMessage({
-				protocol: 'provoda',
-				action: 'buildtree',
-				message: {
-					//has_root: has_root,
-					value: tree_by_array
-				}
-			}, window.location.origin);
-		},
-		changeCollection: function(_provoda_id, struc, nesting_name, value, old_value) {
-			this.iframe.contentWindow.postMessage({
-				protocol: 'provoda',
-				action: 'update_nesting',
-				message: {
-					_provoda_id: _provoda_id,
-					struc: struc,
-					name: nesting_name,
-					value: value
-				}
-			}, window.location.origin);
-		},
-		updateStates: function(_provoda_id, data) {
-			this.iframe.contentWindow.postMessage({
-				protocol: 'provoda',
-				action: 'update_states',
-				message: {
-					_provoda_id: _provoda_id,
-					value: data
-				}
-			}, window.location.origin);
-		}
-	};
+	
 
 	requirejs(['provoda', 'su', 'spv'], function(provoda, su, spv) {
 
-		var  iframe = document.createElement('iframe');
+
+		var ports_counter = 0;
+		chrome.extension.onConnect.addListener(function(port) {
+			/*console.log("Connected:", port)
+			
+			if(port.name == "popup")
+				popup_port = port
+
+			connected_ports.push(port);*/
+
+
+
+			var stream = {
+				port: port,
+				id: ++ports_counter,
+				buildTree: function(tree_by_array) {
+					//console.log(tree_by_array);
+
+					this.port.postMessage({
+						protocol: 'provoda',
+						action: 'buildtree',
+						message: {
+							//has_root: has_root,
+							value: tree_by_array
+						}
+					});
+				},
+				changeCollection: function(_provoda_id, struc, nesting_name, value, old_value) {
+					this.port.postMessage({
+						protocol: 'provoda',
+						action: 'update_nesting',
+						message: {
+							_provoda_id: _provoda_id,
+							struc: struc,
+							name: nesting_name,
+							value: value
+						}
+					});
+				},
+				updateStates: function(_provoda_id, data) {
+					this.port.postMessage({
+						protocol: 'provoda',
+						action: 'update_states',
+						message: {
+							_provoda_id: _provoda_id,
+							value: data
+						}
+					});
+				}
+			};
+
+			port.onMessage.addListener(function(data) {
+
+				if (data.action == 'init_sender') {
+
+				var md = su.start_page.createLFMPagePlaylists(data.message);
+					provoda.sync_s.addSyncStream(md, stream);
+				} else if (data.action == 'rpc_legacy') {
+					var message = data.message;
+					var tmd = provoda.getModelById(message.provoda_id);
+					if (!tmd){
+						throw new Error('there is no such model');
+					}
+					tmd.RPCLegacy.apply(tmd, message.value);
+				}
+			});
+		
+		});
+
+
+		/*var  iframe = document.createElement('iframe');
 		spv.addEvent(window, 'message', function(e) {
 			if (e.source != iframe.contentWindow) {
 				return;
 			}
-			if (e.data.action == 'init_sender') {
+			var data = e.data;
+			if (data.action == 'init_sender') {
 
-				var md = su.start_page.createLFMPagePlaylists(e.data.message);
+				var md = su.start_page.createLFMPagePlaylists(data.message);
 				provoda.sync_s.addSyncStream(md, stream);
-			} else if (e.data.action == 'rpc_legacy') {
-				var message = e.data.message;
+			} else if (data.action == 'rpc_legacy') {
+				var message = data.message;
 				var md = provoda.getModelById(message.provoda_id);
 				if (!md){
 					throw new Error('there is no such model');
@@ -161,7 +196,7 @@ big_timer = {
 				protocol: 'provoda',
 				action: 'init_reciever'
 			}, '*');
-		});
+		});*/
 		
 		//app thread;
 	});

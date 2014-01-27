@@ -263,7 +263,6 @@ TrackList.prototype.insertLink = function(row, track, cmtnode) {
     if ( td_playbtn ) {
         emptyNode(td_playbtn);
         td_playbtn.appendChild(cmtnode);
-        td_playbtn.appendChild(this.generateAudioLink(track));
     } else {
         return false;
     }
@@ -294,7 +293,6 @@ SingleTrack.prototype.getTrack = function(){
 
 SingleTrack.prototype.insertLink = function(el, track, cmtnode){
     //this.generateLink(track)
-    prependNode(el, this.generateAudioLink(track));
     prependNode(el, cmtnode);
     el.className = el.className + ' ex_container';
     return true;
@@ -335,7 +333,6 @@ ArtistsChart.prototype.getTrack = function(row){
 ArtistsChart.prototype.insertLink = function(row, track, cmtnode){
     var span = row.querySelector('td.subjectCell span')
     //this.generateLink(track)
-    prependNode(span, this.generateAudioLink(track));
     prependNode(span, cmtnode);
 
     
@@ -398,7 +395,6 @@ FriendsLoved.prototype.insertLink = function(li, track, cmtnode){
         elm.querySelector('.previewbutton').style.display = 'none'
     //this.generateLink(track)
 
-    prependNode(elm, this.generateAudioLink(track));
     prependNode(elm, cmtnode);
 };
 manager.registerWrapper('#friendsLoved', FriendsLoved);
@@ -425,7 +421,6 @@ NowPlaying.prototype.getTrack = function(li){
 NowPlaying.prototype.insertLink = function(li, track, cmtnode){
     var elm = li.querySelector('.track')     
     //this.generateLink(track)
-    prependNode(elm, this.generateAudioLink(track));
     prependNode(elm, cmtnode);
 };
 manager.registerWrapper('#nowPlaying', NowPlaying);
@@ -486,7 +481,6 @@ ArtistsLargeThumbnails.prototype.insertLink = function(li, track, cmtnode){
         li.removeChild(playbtn)
     }
     li.appendChild(cmtnode);
-    li.appendChild(this.generateAudioLink(track))
 
 };
 
@@ -518,7 +512,6 @@ ArtistRecomendations.prototype.insertLink = function(li, track, cmtnode){
     if(playbtn){
         elm.removeChild(playbtn)
     }
-    prependNode(elm, this.generateAudioLink(track));
     prependNode(elm, cmtnode);
 
 };
@@ -549,7 +542,6 @@ ArtistRecsPreview.prototype.getTrack = function(li){
 ArtistRecsPreview.prototype.insertLink = function(li, track, cmtnode){
     var elm = li.querySelector('.container')
 
-    elm.appendChild(this.generateAudioLink(track));
     elm.appendChild(cmtnode);
 
     var playbtn = elm.querySelector('.playbutton')    
@@ -585,7 +577,6 @@ ArtistsWithInfo.prototype.getTrack = function(li){
 
 ArtistsWithInfo.prototype.insertLink = function(li, track, cmtnode){
 
-    li.appendChild(this.generateAudioLink(track));
     li.appendChild(cmtnode);
 
     var playbtn = li.querySelector('.playbutton')    
@@ -625,7 +616,6 @@ AlbumsMedium.prototype.getTrack = function(li){
 
 AlbumsMedium.prototype.insertLink = function(li, track, cmtnode){
     
-    li.appendChild(this.generateAudioLink(track));
     li.appendChild(cmtnode);
 
     var elm = li.querySelector('div.resContainer')
@@ -661,7 +651,6 @@ AlbumsLibrary.prototype.getTrack = function(li){
 
 AlbumsLibrary.prototype.insertLink = function(li, track, cmtnode){
     var elm = li.querySelector('span.albumCover');
-    prependNode(elm, this.generateAudioLink(track));
     prependNode(elm, cmtnode);
 };
 
@@ -697,7 +686,6 @@ NewReleases.prototype.getTrack = function(tr){
 NewReleases.prototype.insertLink = function(tr, track, cmtnode){
     var elm = tr.querySelector('.release');
 
-    prependNode(elm, this.generateAudioLink(track));
     prependNode(elm, cmtnode);
 
     var playbtn = elm.querySelector('.playbutton')    
@@ -736,7 +724,6 @@ RecentAlbums.prototype.getTrack = function(li){
 
 RecentAlbums.prototype.insertLink = function(li, track, cmtnode){
 
-    li.appendChild(this.generateAudioLink(track));
     li.appendChild(cmtnode);
 
     var playbtn = li.querySelector('.playbutton')    
@@ -802,7 +789,6 @@ Playground.prototype.insertLink = function(row, track, cmtnode) {
         if(track_info.length == 3)
             td.removeChild(track_info[0])
 
-        prependNode(td, this.generateAudioLink(track));
         prependNode(td, cmtnode);
 
     } else if(this.page_type == "sterec" || this.page_type == "multitag") {
@@ -812,7 +798,6 @@ Playground.prototype.insertLink = function(row, track, cmtnode) {
         if(track_info[0].href.match(/autostart/))
             td.removeChild(track_info[0])
         
-        prependNode(td, this.generateAudioLink(track));
         prependNode(td, cmtnode);
     }
 };
