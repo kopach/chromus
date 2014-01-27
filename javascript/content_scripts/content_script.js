@@ -132,7 +132,7 @@ function initializePort(){
         console.log("Received message:", msg)
 
         if(msg.method == "setSettings") {
-            preparePage(msg.search_pattern, msg.external_audio_search)
+            preparePage()
 
         } else if(msg.method == "stop") {
             stopCurrentTrack()
@@ -178,16 +178,15 @@ initializePort()
 
 
 /**
-    preparePage(search_pattern)
+    preparePage()
 
     Must be called after page load.
 **/
-function preparePage(search_pattern, external_audio_search){
+function preparePage(){
     var customEvent = document.createEvent('Event');
     customEvent.initEvent('ex_play', true, true);
 
-    manager.search_pattern = search_pattern
-    manager.wrapMusicElements(external_audio_search == "true")
+    manager.wrapMusicElements();
 }
 
 

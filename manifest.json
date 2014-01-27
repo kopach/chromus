@@ -12,9 +12,23 @@
      "default_title": "Last.fm free music player",      
      "default_popup": "popup.html"        
    },
+   "web_accessible_resources": [
+     "javascript/provoda/pv-iframe/view_proxy.js",
+     "javascript/provoda/js/libs/provoda.js",
+     "javascript/provoda/js/libs/spv.js",
+     "javascript/provoda/js/libs/StatementsAngularParser.min.js",
+     "javascript/provoda/js/common-libs/jquery-2.0.0.min.js",
+     "javascript/provoda/js/views/LFMPageView.js",
+     "javascript/provoda/js/libs/PvTemplate.js"
+   ],
    "content_scripts": [ {
       "css": [ "css/mp3_player_button.css", "css/style.css" ],
-      "js": [ "javascript/content_scripts/manager.js", "javascript/content_scripts/content_script.js" ],
+      "js": [ 
+        "javascript/content_scripts/manager.js",
+        "javascript/provoda/pv-iframe/loader.js",
+        "javascript/provoda/js/common-libs/require-2.1.10.js"
+        
+      ],
       "matches": [ "http://*.last.fm/*", "http://*.lastfm.ru/*","http://*.lastfm.pt/*",  "http://*.lastfm.de/*", "http://*.lastfm.es/*", "http://*.lastfm.fr/*", "http://*.lastfm.it/*", "http://*.lastfm.jp/*", "http://*.lastfm.pl/*", "http://*.lastfm.com.br/*", "http://*.lastfm.se/*", "http://*.lastfm.com.tr/*"]
    },
    {
