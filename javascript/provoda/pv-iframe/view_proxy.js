@@ -1,7 +1,26 @@
 define(['provoda', 'spv', 'angbo', 'jquery', 'js/views/LFMPageView'], function(provoda, spv, angbo, $, LFMPageView) {
 "use strict";
 //var big_index = {};
-var port = chrome.extension.connect({ name: "page" });
+
+var Stream = function(port) {
+	this.port = port;
+};
+Stream.prototype.RPCLegacy = function(provoda_id, arguments_list) {
+	this.port.postMessage({
+		protocol: 'provoda',
+		action: 'rpc_legacy',
+		message: {
+			//has_root: has_root,
+			provoda_id: provoda_id,
+			value: arguments_list,
+		}
+	});
+	//console.log(md, arguments_list);
+};
+
+
+
+
 
 /*var stream = {
 	RPCLegacy: function(provoda_id, arguments_list) {
@@ -17,26 +36,52 @@ var port = chrome.extension.connect({ name: "page" });
 		//console.log(md, arguments_list);
 	}
 };*/
+var parsed;
+var root_view;
+var sync_r;
+var current_port;
+var check_interval;
+var initPort = function() {
+	
+	var port = chrome.extension.connect({ name: "page" });
+	current_port = port;
+	sync_r = new provoda.SyncR(new Stream(port));
 
-
-var stream = {
-	RPCLegacy: function(provoda_id, arguments_list) {
-		port.postMessage({
-			protocol: 'provoda',
-			action: 'rpc_legacy',
-			message: {
-				//has_root: has_root,
-				provoda_id: provoda_id,
-				value: arguments_list,
+	port.onMessage.addListener(function(data){
+		if (data && data.protocol == 'provoda'){
+			var result;
+			if (sync_r.actions[data.action]){
+				result = sync_r.actions[data.action].call(sync_r, data.message);
 			}
+			if (data.action == 'buildtree' && !root_view) {
+				var md = result;
+				var view = new LFMPageView();
+				md.mpx.addView(view, 'root');
+				//md.updateLVTime();
+
+				view.init({
+					mpx: md.mpx
+				}, {d: window.document, angbo: angbo, dom_storage: views_storage});
+				view.requestAll();
+				root_view = view;
+			}
+		}
+	});
+	port.onDisconnect.addListener(function() {
+		root_view.die();
+		root_view = null;
+		port = current_port = null;
+	});
+
+	if (parsed) {
+		current_port.postMessage({
+			action: 'init_sender',
+			message: playlists_list
 		});
-		//console.log(md, arguments_list);
 	}
+
 };
 
-
-var has_app_root_view;
-var sync_r = new provoda.SyncR(stream);
 
 /*var playlists = {};
 var playlists_list = [];
@@ -45,103 +90,33 @@ var views_storage = {
 	songs: {}
 };*/
 
-
+initPort();
 
 spv.domReady(document, function() {
 
 	// Tabs when switching in charts
-	var tabs = document.querySelectorAll('.horizontalOptions, .nextPage, .previousPage');
+	//var tabs = document.querySelectorAll('.horizontalOptions, .nextPage, .previousPage');
 
 	
 	/*for(var i=0; i<tabs.length; i++){
-	    tabs[i].addEventListener('click', function(){
-	        setTimeout(function(){manager.wrapMusicElements(false)}, 1000)
-	    }, false);
+		tabs[i].addEventListener('click', function(){
+			setTimeout(function(){manager.wrapMusicElements(false)}, 1000)
+		}, false);
 	}
 	tabs = null;*/
 
 	manager.wrapMusicElements();
 
-
-	port.postMessage({
+	parsed = true;
+	current_port.postMessage({
 		action: 'init_sender',
 		message: playlists_list
 	});
 
-	/*
-	$('.playlist').each(function(playlist_num, el) {
-		
-		if (!playlists[playlist_num]) {
-			playlists[playlist_num] = [];
-			playlists_list.push(playlists[playlist_num]);
-		}
-		
-		var playlist_array = playlists[playlist_num];
 
-		var song_con = $(el).find('li');
-		song_con.each(function(song_num, el) {
-			spv.setTargetField(views_storage.songs, [playlist_num, song_num], {
-				con: el,
-				view_node: null,
-				view: null
-			});
-			var artist_name = $(el).find('.artist_name').text();
-			var track_name = $(el).find('.track_name').text();
-			playlist_array.push([artist_name, track_name]);
-		});
-
-	});
-
-	window.parent.postMessage({
-		action: 'init_sender',
-		message: playlists_list
-	}, window.location.origin);*/
 });
-port.onMessage.addListener(function(data){
-	if (data && data.protocol == 'provoda'){
-		var result;
-		if (sync_r.actions[data.action]){
-			result = sync_r.actions[data.action].call(sync_r, data.message);
-		}
-		if (data.action == 'buildtree' && !has_app_root_view) {
-			has_app_root_view = true;
-
-			var md = result;
-			var view = new LFMPageView();
-			md.mpx.addView(view, 'root');
-			//md.updateLVTime();
-
-			view.init({
-				mpx: md.mpx
-			}, {d: window.document, angbo: angbo, dom_storage: views_storage});
-			view.requestAll();
-		}
-	}
-});
-/*
-spv.addEvent(window, 'message', function(e) {
-	var data  = e.data;
-	if (data && data.protocol == 'provoda'){
-		var result;
-		if (sync_r.actions[data.action]){
-			result = sync_r.actions[data.action].call(sync_r, data.message);
-		}
-		if (data.action == 'buildtree' && !has_app_root_view) {
-			has_app_root_view = true;
 
 
-			var md = result;
-			var view = new LFMPageView();
-			md.mpx.addView(view, 'root');
-			//md.updateLVTime();
-
-			view.init({
-				mpx: md.mpx
-			}, {d: window.document, angbo: angbo, dom_storage: views_storage});
-			view.requestAll();
-		}
-	}
-});*/
 
 return {};
 });

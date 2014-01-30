@@ -93,19 +93,11 @@ big_timer = {
 		});
 	}
 
-	
-
 	requirejs(['provoda', 'su', 'spv'], function(provoda, su, spv) {
 
 
 		var ports_counter = 0;
 		chrome.extension.onConnect.addListener(function(port) {
-			/*console.log("Connected:", port)
-			
-			if(port.name == "popup")
-				popup_port = port
-
-			connected_ports.push(port);*/
 
 
 
@@ -174,40 +166,6 @@ big_timer = {
 			});
 		
 		});
-
-
-		/*var  iframe = document.createElement('iframe');
-		spv.addEvent(window, 'message', function(e) {
-			if (e.source != iframe.contentWindow) {
-				return;
-			}
-			var data = e.data;
-			if (data.action == 'init_sender') {
-
-				var md = su.start_page.createLFMPagePlaylists(data.message);
-				provoda.sync_s.addSyncStream(md, stream);
-			} else if (data.action == 'rpc_legacy') {
-				var message = data.message;
-				var md = provoda.getModelById(message.provoda_id);
-				if (!md){
-					throw new Error('there is no such model');
-				}
-				md.RPCLegacy.apply(md, message.value);
-			}
-		});
-		iframe.src = 'pv-iframe/index.html';
-		stream.iframe = iframe;
-
-
-		spv.domReady(document, function() {
-			document.body.appendChild(iframe);
-			iframe.contentWindow.postMessage({
-				protocol: 'provoda',
-				action: 'init_reciever'
-			}, '*');
-		});*/
-		
-		//app thread;
 	});
 
 })();

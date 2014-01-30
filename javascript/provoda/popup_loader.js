@@ -1,5 +1,31 @@
 (function() {
 "use strict";
+
+var port = chrome.extension.connect({ name: "popup" });
+
+var recived_data = [];
+var stream = {
+	RPCLegacy: function(provoda_id, arguments_list) {
+		port.postMessage({
+			protocol: 'provoda',
+			action: 'rpc_legacy',
+			message: {
+				//has_root: has_root,
+				provoda_id: provoda_id,
+				value: arguments_list,
+			}
+		});
+		//console.log(md, arguments_list);
+	}
+};
+var initListener = function(data) {
+	recived_data.push(data);
+};
+port.onMessage.addListener(initListener);
+port.postMessage({
+	action: 'init_root'
+});
+
 requirejs.config({
 	baseUrl: chrome.extension.getURL('javascript/provoda'),
 	paths: {
@@ -21,31 +47,13 @@ requirejs.config({
 });
 
 require(['provoda', 'spv', 'js/views/AppView', 'angbo'], function(provoda, spv, AppView, angbo) {
-
-	var port = chrome.extension.connect({ name: "popup" });
-
-	var stream = {
-		RPCLegacy: function(provoda_id, arguments_list) {
-			port.postMessage({
-				protocol: 'provoda',
-				action: 'rpc_legacy',
-				message: {
-					//has_root: has_root,
-					provoda_id: provoda_id,
-					value: arguments_list,
-				}
-			});
-			//console.log(md, arguments_list);
-		}
-	};
-
 	var has_app_root_view;
 	var sync_r = new provoda.SyncR(stream);
 
 
 	var can_die = true;
 
-	port.onMessage.addListener(function(data){
+	var dataHandler = function(data){
 		if (data && data.protocol == 'provoda'){
 			var result;
 			if (sync_r.actions[data.action]){
@@ -70,11 +78,19 @@ require(['provoda', 'spv', 'js/views/AppView', 'angbo'], function(provoda, spv, 
 				
 			}
 		}
-	});
+	};
 
-	port.postMessage({
-		action: 'init_root'
-	});
+	while ( recived_data.length ) {
+		var cur = recived_data.shift();
+		dataHandler.call(null, cur);
+	}
+
+
+	port.onMessage.addListener(dataHandler);
+	port.onMessage.removeListener(initListener);
+	recived_data = null;
+
+	
 
 
 	

@@ -116,7 +116,13 @@ PlayerBase.extendTo(PlayerComplex, {
 				mo.plst_titl.lev.freeze();
 			}
 			this.c_song = mo;
+
+			
 			mo.updateState("player_song", true);
+
+			if ( this.app ) {
+				this.app.updateState('current_song_id', mo._provoda_id);
+			}
 		}
 		this.trigger('now_playing-signal', last_mo != mo, mo, last_mo);
 	}

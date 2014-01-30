@@ -47,7 +47,7 @@ provoda.View.extendTo(SongView, {
 		showSong: function(e) {
 			e.preventDefault();
 			this.RPCLegacy('wantSong');
-			//this.RPCLegacy('requestPage');
+			this.RPCLegacy('requestPage');
 
 		}
 	}

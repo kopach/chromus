@@ -27,8 +27,11 @@ AppBaseView.extendTo(AppView, {
 		space: 'nav',
 		by_model_name: true
 	},*/
-
+	'collch-current_mp_md': function(name, value) {
+		this.updateState('current_mp_md', value._provoda_id);
+	},
 	'collch-map_slice': false,
+	'stch-current_mp_md': false,
 	'spec-vget-song': function(md) {
 		var playlist = md.getParentMapModel();
 		var playlist_mpx = playlist.mpx;

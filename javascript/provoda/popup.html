@@ -7,6 +7,32 @@
   <!--<link rel="stylesheet" href="css/master.css">-->
   <style>
     body {width:400px;height:600px;}
+  .hidden {
+    display: none;
+  }
+    .song_item{
+      padding:0.5rem;
+      overflow: hidden;
+      height: 40px;
+    }
+    .song_item-buttons{
+      float:left;
+      width:40px;
+    }
+    .play_button:hover{
+      cursor: pointer;
+      outline:1px solid #666;
+    }
+    .song_item-fullname{
+      margin-left: 40px;
+    }
+    .song_item-artistname {
+      color: #666;
+    }
+
+    .playlist_con .song_item:nth-of-type(even){
+      background: #eee;
+    }
   </style>
   <script data-main="popup_loader" src="js/common-libs/require-2.1.10.min.js"></script>
   </head>
@@ -14,18 +40,22 @@
   <body>
     <div class="app_wrap">
       <div class="start_page" pv-nest="start_page">
-        <div pv-nest="lfm_pages">
-          <div class="playlist_con" pv-nest="main_list">
-            <div pv-nest="songs-list">
-              <span class="play_button"></span>
-              <span class="pause_button"></span>
-              <span class="switch_file_button"></span>
+        <div>
+          <div class="playlist_con hidden" pv-class="playlist_con" pv-nest="current_playlist">
+            <div pv-nest="songs-list" class="song_item " >
+              <div class="song_item-buttons">
+                <span class="play_button" pv-events="click::wantSong click::requestPage click::switchPlay">▶</span>
+                <span class="switch_file_button"></span>
+              </div>
+              
 
-              <span class="remove_song_button"></span>
-
-              <span pv-text="{{artist}}"></span>
-              - 
-              <span pv-text="{{track}}"></span>
+              <!--<span class="remove_song_button">&times;</span>-->
+              
+              <div class="song_item-fullname">
+                <div class="song_item-artistname"pv-text="{{artist}}"></div>
+                <div pv-text="{{track}}"></div>
+              </div>
+              
             </div>
           </div>
         </div>
