@@ -62,13 +62,13 @@
 a.sm2_button {
  position:relative;
  display:inline-block; /* If you worry old browser bugs, Firefox 2 might not like this and may need -moz-inline-box instead. :D */
- width:13px;
- height:13px;
+ width:16px;
+ height:16px;
  text-indent:-9999px; /* don't show link text */
  overflow:hidden; /* don't draw inner link text */
  vertical-align:middle;
  /* and, a bit of round-ness for the cool browsers. */
- border-radius:13px;
+ border-radius:16px;
  margin-top:-1px; /* vertical align tweak */
  /* safari 3.1+ fun (/W3 working draft extension, TBD.) */
  -webkit-transition-property: hover;

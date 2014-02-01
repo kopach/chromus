@@ -9,8 +9,32 @@ define(['provoda', 'jquery', 'spv'], function(provoda, $, spv) {
   {{vmp_show && 'viewing-song'}} 
   {{vis_lite_view && vmp_show && 'selected_song'}} 
  */
+
+
+
+
+var song_string = '<span ' +
+                  'class="play_button" '+
+                  'pv-events="click::wantSong click::requestPage click::switchPlay"'+
+                  'pv-class="play_button {{player_song && \'player_song\'}} {{!player_song && want_to_play && \'wanted_song\'}} "'+
+                  '>'+
+                  '<span class="earching_files-base" pv-class="searching_files-base {{searching_files && \'searching_files-progress\'}}">'+
+                  '  <span'+
+                  '    class="play_button_icon"'+
+                  '    pv-class=" '+
+                  '      play_button_icon '+
+                  '      {{player_song && play == \'play\' && \'pbicon-playing_song\'}}'+
+                  '      {{has_none_files_to_play && \'has-none-files\'}} '+
+                  '      {{files_search.have_best_tracks && \'has_best_files\'}} '+
+                  '      {{files_search.have_mp3_tracks && \'has-some-files\'}} "'+
+                  '    ></span>'+
+                  '</span>'+
+                  
+               ' </span>';
+
+
 var song_sample = {
-	string: '<a class="sm2_button" href="javascript:void()" pv-events="click:showSong">▶</a>',
+	string: song_string,
 	sampler: null,
 	root_node: document.createElement('span')
 };

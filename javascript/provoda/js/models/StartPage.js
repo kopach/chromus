@@ -80,7 +80,9 @@ BrowseMap.Model.extendTo(StartPage, {
 		
 		this.wch(this.app, 'current_song_id', function(e) {
 			if (e.value) {
+				this.updateNesting('current_song', this.app.p.c_song);
 				this.updateNesting('current_playlist', this.app.p.c_song.map_parent);
+
 			}
 		});
 

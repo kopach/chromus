@@ -108,7 +108,7 @@ var MDProxy = function(_provoda_id, states, children_models, md) {
 	this.vstates = {};
 	this.children_models = children_models;
 	this.md = md;
-	this.nestings = {};
+	this.nestings = spv.cloneObj({}, children_models);
 };
 
 MDProxy.prototype = {
@@ -158,6 +158,8 @@ MDProxy.prototype = {
 		var removed;
 		if (Array.isArray(array)){
 			removed = spv.arrayExclude(array, old_value);
+		} else if (old_value && array != old_value) {
+			removed = [old_value];
 		}
 		
 		for (var i = 0; i < this.views.length; i++) {
@@ -374,7 +376,7 @@ SyncReciever.prototype = {
 			if (message.struc) {
 				this.buildTree(message.struc);
 			}
-			this.md_proxs_index[message._provoda_id].sendCollectionChange(message.name, message.value);
+			this.md_proxs_index[message._provoda_id].sendCollectionChange(message.name, idToModel(this.models_index, message.value));
 		}
 	}
 };

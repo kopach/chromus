@@ -3,36 +3,65 @@
   <head>
   <meta charset="utf-8">
   <title>Surump</title>
-  <link rel="shortcut icon" id="dynamic-favicon"  href="icons/icon16.png"/>
+  <link rel="stylesheet" href="playbutton.css">
+  <!--<link rel="shortcut icon" id="dynamic-favicon"  href="icons/icon16.png"/>-->
   <!--<link rel="stylesheet" href="css/master.css">-->
   <style>
-    body {width:400px;height:600px;}
+    body {margin:0;padding:0;width:400px;height:600px;}
+    body {
+  font: 14px/1.5 Arial, sans-serif;
+}
   .hidden {
     display: none;
   }
+
+  .cur_con_song {
+    height: 98px;
+    background-image: linear-gradient(#f3f3f3,#eee);
+    border-bottom: 2px solid #ddd;
+  }
+    .csong_song_image{
+      width: 49px;
+      height: 49px;
+      float: left;
+    }
+    .songs_files {
+      display: none;
+    }
+  .cur_con_playlist {
+    height: 500px;
+    overflow: auto;
+  }
+
     .song_item{
-      padding:0.5rem;
+      padding: 0.2rem 0.4rem;
       overflow: hidden;
       height: 40px;
     }
-    .song_item-buttons{
-      float:left;
-      width:40px;
-    }
-    .play_button:hover{
-      cursor: pointer;
-      outline:1px solid #666;
-    }
-    .song_item-fullname{
-      margin-left: 40px;
-    }
-    .song_item-artistname {
-      color: #666;
-    }
-
     .playlist_con .song_item:nth-of-type(even){
       background: #eee;
     }
+    .playlist_con .song_item:hover{
+      background: #fafafa;
+    }
+      .song_item .song_item-buttons{
+        float:left;
+        width:40px;
+      }
+      .song_item .song_item-fullname{
+        margin-left: 40px;
+      }
+      .song_item-artistname {
+        color: #666;
+      }
+    .current_song {
+
+    }
+
+    .current_song {
+
+    }
+    
   </style>
   <script data-main="popup_loader" src="js/common-libs/require-2.1.10.min.js"></script>
   </head>
@@ -41,23 +70,99 @@
     <div class="app_wrap">
       <div class="start_page" pv-nest="start_page">
         <div>
-          <div class="playlist_con hidden" pv-class="playlist_con" pv-nest="current_playlist">
-            <div pv-nest="songs-list" class="song_item " >
-              <div class="song_item-buttons">
-                <span class="play_button" pv-events="click::wantSong click::requestPage click::switchPlay">▶</span>
-                <span class="switch_file_button"></span>
-              </div>
-              
-
-              <!--<span class="remove_song_button">&times;</span>-->
-              
+          <div class="cur_con_song">
+            <div class="current_song" pv-nest="current_song">
+              <div class="csong_song_image"></div>
               <div class="song_item-fullname">
-                <div class="song_item-artistname"pv-text="{{artist}}"></div>
                 <div pv-text="{{track}}"></div>
+                <div class="song_item-artistname"pv-text="{{artist}}"></div>
+                
               </div>
-              
+              <div pv-nest="mf_cor" class="songs_files">
+                <div pv-nest="sorted_completcs">
+                  <span pv-text="{{complect_name}}"></span>
+                  <ul>
+                      <li
+                        pv-nest="moplas_list"
+                        class="song-file"
+                        pv-type="{{!selected && vis_wp_usable && 'way-point'}}"
+                        pv-events="click:selectFile"
+                        pv-class="
+                          {{unavailable && 'mf-unavailable'}}
+                          {{buffering_progress && 'buffering-progress'}}
+                          {{play == 'play' && 'playing-file'}}
+                          {{selected && 'selected-mf'}}
+                          {{overstock && 'overstocked'}}
+                        ">
+                        <span 
+                          class="play-button-place"
+                          pv-type="{{selected && 'way-point'}}"
+                          pv-events="click:switchPlay">
+                          <span class="pc-indicator big-indicator play-indicator pc-place">
+                            <span class="pc pc-play big-control"></span>
+                          </span>
+                          
+                        </span>
+                        <div class="mf-progress" pv-anchor="progress_c">
+                          <div 
+                            class="mf-load-progress"
+                            pv-props="style.width:{{vis_loading_p}}"
+                            ></div>
+                          <div
+                            class="mf-play-progress"
+                            pv-props="style.width:{{vis_playing_p}}"
+                            ></div>
+                          <div class="mf-text">
+                            <span class="mf-duration" pv-text="{{visible_duration_text}}"></span>
+                            <span class="main-mf-text" pv-text="{{title}}" pv-props="title:{{description}}"></span>
+                            <span class="mf-source" pv-text="{{source_name}}"></span>
+                          </div>
+                        </div>
+                      </li>
+                  </ul>
+                </div>
+                
+              </div>
             </div>
           </div>
+          <div class="cur_con_playlist">
+            <div class="playlist_con hidden" pv-class="playlist_con" pv-nest="current_playlist">
+              <div pv-nest="songs-list" class="song_item " >
+                <div class="song_item-buttons">
+                  <span 
+                    class="play_button" 
+                    pv-events="click::wantSong click::requestPage click::switchPlay"
+                    pv-class="play_button {{player_song && 'player_song'}} {{!player_song && want_to_play && 'wanted_song'}} "
+                    >
+                    <span class="earching_files-base" pv-class="searching_files-base {{searching_files && 'searching_files-progress'}}">
+                      <span
+                        class="play_button_icon"
+                        pv-class=" 
+                          play_button_icon 
+                          {{player_song && play == 'play' && 'pbicon-playing_song'}}
+                          {{has_none_files_to_play && 'has-none-files'}} 
+                          {{files_search.have_best_tracks && 'has_best_files'}} 
+                          {{files_search.have_mp3_tracks && 'has-some-files'}} "
+                        ></span>
+                    </span>
+                    
+                  </span>
+                  <span class="switch_file_button"></span>
+                </div>
+                
+
+                <!--<span class="remove_song_button">&times;</span>-->
+                
+                <div class="song_item-fullname">
+                  <div class="song_item-artistname"pv-text="{{artist}}"></div>
+                  <div pv-text="{{track}}"></div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          
+          
         </div>
         
       </div>

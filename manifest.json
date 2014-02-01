@@ -19,10 +19,16 @@
      "javascript/provoda/js/libs/StatementsAngularParser.min.js",
      "javascript/provoda/js/common-libs/jquery-2.0.0.min.js",
      "javascript/provoda/js/views/LFMPageView.js",
-     "javascript/provoda/js/libs/PvTemplate.js"
+     "javascript/provoda/js/libs/PvTemplate.js",
+
+     "i/icon-untouched-16.png",
+     "i/icon-failed-16.png",
+     "i/icon-finded-16.png",
+     "i/icon-playing-16.png",
+     "i/spinner-16.gif"
    ],
    "content_scripts": [ {
-      "css": [ "css/mp3_player_button.css", "css/style.css" ],
+      "css": [ "css/mp3_player_button.css", "css/style.css", "javascript/provoda/playbutton.css" ],
       "js": [ 
         "javascript/content_scripts/manager.js",
         "javascript/provoda/pv-iframe/loader.js",
