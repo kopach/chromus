@@ -1,5 +1,6 @@
-define(['provoda', 'spv', 'jquery', 'app_serv', 'js/libs/FuncsQueue', './nav', './AppBaseView', './modules/WPBox'],
-function(provoda, spv, $, app_serv, FuncsQueue, nav, AppBaseView, WPBox) {
+define(['provoda', 'spv', 'jquery', 'app_serv', 'js/libs/FuncsQueue', './nav', './AppBaseView', './modules/WPBox',
+'./StartPageSimpleView'],
+function(provoda, spv, $, app_serv, FuncsQueue, nav, AppBaseView, WPBox, StartPageSimpleView) {
 "use strict";
 var app_env = app_serv.app_env;
 var localize = app_serv.localize;
@@ -10,10 +11,11 @@ var AppView = function(){};
 AppBaseView.extendTo(AppView, {
 	children_views: {
 		start_page : {
-			main: provoda.View,
+			main: StartPageSimpleView,
 			//main: StartPageView,
 			nav: nav.StartPageNavView
 		}
+
 	/*	playlist: {
 			main: SongsListView,
 			'all-sufficient-details': SongsListView.SongsListDetailedView,
