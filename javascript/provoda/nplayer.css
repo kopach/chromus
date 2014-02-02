@@ -4,6 +4,8 @@
 	position:relative;
 }
 .song-file {
+	padding: 0 0.2rem;
+	overflow:hidden;
 	cursor: pointer;
 }
 .track-progress {
@@ -78,3 +80,23 @@
 			margin-bottom: 2px;
 			margin-left: 5px;
 			}
+	.mf-source {
+		margin-left: 2px;
+		margin-right: 5px;
+	}
+.play-button-place {
+	float:left;
+	margin-right: 0.5rem;
+}
+
+
+
+.songs_files .song-file{
+	padding: 0.2rem;
+	border-top: 1px solid #F8F8F8;
+	border-bottom: 1px solid #DBDBDB;
+	background: #f0f0f0;
+}
+.songs_files .mf-source{
+	display: none;
+}
