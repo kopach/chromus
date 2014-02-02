@@ -200,7 +200,12 @@ lfm_share_url_replacers.forEach(function(el, i) {
 				.on("error", this.hndMfcError, this.getContextOpts());
 
 			this.wch(this.mf_cor, 'has_available_tracks', 'mf_cor_has_available_tracks');
+			this.wch(this.mf_cor, 'current_mopla', function(e) {
+				this.updateNesting('current_mopla', e.value);
+			});
 
+			//this.mf_cor.on('')
+//
 			
 			this.on('vip_state_change-mp_show', this.hndMpshowImp, this.getContextOptsI());
 			this.on('state_change-is_important', this.hndImportant);
@@ -215,7 +220,6 @@ lfm_share_url_replacers.forEach(function(el, i) {
 		hndMfcBeforePlay: function(mopla) {
 			this.player.changeNowPlaying(this, mopla.state('play'));
 			this.mopla = mopla;
-			this.updateNesting('current_mopla', mopla);
 			this.updateState('play', mopla.state('play'));
 		},
 		hndMfcError: function(can_play) {

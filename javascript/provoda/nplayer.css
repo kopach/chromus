@@ -1,0 +1,80 @@
+.selected-mf .mf-progress {
+	overflow:hidden;
+	max-width:100%;
+	position:relative;
+}
+.song-file {
+	cursor: pointer;
+}
+.track-progress {
+		
+	text-align:right;
+	}
+
+	.selected-mf .mf-load-progress{
+		position:absolute;
+		top:0;
+		left:0;
+		display: block;
+		width:0;
+		height:100%;
+		-webkit-border-radius: 5px;
+		
+		
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background:#484848;
+		cursor:pointer;
+	
+	
+		}
+	.mf-load-progress, .mf-play-progress{
+		display: none;
+	}
+	.selected-mf .mf-play-progress{
+		position:absolute;
+		top:0;
+		left:0;
+		display: block;
+		width:0;
+		height:100%;
+		-webkit-border-radius: 5px;
+		
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background:#CACACA url(../i/playing-gradient.png) repeat-x 0 0;
+		cursor:pointer;
+	
+		}
+	.selected-mf .mf-load-progress{
+		position:absolute;
+		top:0;
+		left:0;
+		display: block;
+		width:0;
+		height:100%;
+		-webkit-border-radius: 5px;
+		
+		
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background:#D6D6D6;
+		cursor:pointer;
+	
+	
+		}
+
+	.mf-text{
+		position: relative;
+		z-index: 2;
+		margin:0 5px;
+		}
+	.selected-mf .mf-text{
+		margin:0 4px;
+		color: hsl(0, 0%, 41%);
+		}
+		.mf-duration{
+			float:right;
+			margin-bottom: 2px;
+			margin-left: 5px;
+			}

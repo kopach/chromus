@@ -370,13 +370,31 @@ SyncReciever.prototype = {
 			return this.buildTree(message.value);
 		},
 		update_states: function(message) {
+			var target_model = this.models_index[message._provoda_id];
+			var target_md_proxy = this.md_proxs_index[message._provoda_id];
+
+			for (var i = 0; i < message.value.length; i+=2) {
+				var state_name = message.value[ i ];
+				var state_value = message.value[ i +1 ];
+				target_model.states[state_name] = target_md_proxy.states[state_name] = state_value;
+			}
+
+			
 			this.md_proxs_index[message._provoda_id].sendStatesToViews(message.value);
 		},
 		update_nesting: function(message) {
 			if (message.struc) {
 				this.buildTree(message.struc);
 			}
-			this.md_proxs_index[message._provoda_id].sendCollectionChange(message.name, idToModel(this.models_index, message.value));
+
+			var target_model = this.models_index[message._provoda_id];
+			var target_md_proxy = this.md_proxs_index[message._provoda_id];
+
+			var fakes_models = idToModel(this.models_index, message.value);
+			
+
+			target_model.children_models[message.name] = target_md_proxy.children_models[message.name] = fakes_models;
+			target_md_proxy.sendCollectionChange(message.name, fakes_models);
 		}
 	}
 };
@@ -1346,7 +1364,7 @@ provoda.Eventor.extendTo(provoda.StatesEmitter, {
 	},
 	checkExpandableTree: function(state_name) {
 		var i, cur, cur_config, has_changes = true, append_list = [];
-		while (has_changes) {
+		while (this.base_skeleton && has_changes) {
 			has_changes = false;
 			for (i = 0; i < this.base_skeleton.length; i++) {
 				cur = this.base_skeleton[i];
