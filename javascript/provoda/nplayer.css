@@ -100,3 +100,11 @@
 .songs_files .mf-source{
 	display: none;
 }
+
+
+.sorted_completcs {
+	margin-bottom: 2rem;
+	}
+	.files_complect_header {
+		margin-left: 2rem;
+	}
