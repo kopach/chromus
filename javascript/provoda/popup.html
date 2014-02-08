@@ -36,12 +36,19 @@
 
               </div>
               <div class="files_popup_con" pv-class="files_popup_con {{want_more_songs && 'want_more_songs'}}">
-                <div class="files_popup"  pv-anchor="files_popup"></div>
+                <div class="files_popup_wrap">
+                  <div class="files_popup"  pv-anchor="files_popup"></div>
+                </div>
+                
                 <div class="arrow-part current_song-arrow">
                   <div class="arrow-part current_song-arrow-bg "></div>
                 </div>
               </div>
               
+              <div>
+                <img src="../../i/icon-play_prev-16.png" alt="" pv-events="click::playPrev">
+                <img src="../../i/icon-play_next-16.png" alt="" pv-events="click::playNext">
+              </div>
               
               <!--
               <div pv-nest="current_mopla">

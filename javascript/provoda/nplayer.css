@@ -108,3 +108,9 @@
 	.files_complect_header {
 		margin-left: 2rem;
 	}
+
+
+.current_mopla_con .mf-text {
+	height: 1.4rem;
+	overflow: hidden;
+} 

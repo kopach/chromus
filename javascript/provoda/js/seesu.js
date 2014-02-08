@@ -294,7 +294,7 @@ AppModel.extendTo(SeesuApp, {
 			window._gaq.gV = function(){
 				return app_serv.store('ga_store');
 			};
-			window._gaq.push(['_setAccount', 'UA-17915703-1']);
+			window._gaq.push(['_setAccount', 'UA-17915703-4']);
 			window._gaq.push(['_setCustomVar', 1, 'environmental', (!app_env.unknown_app ? app_env.app_type : 'unknown_app'), 1]);
 			window._gaq.push(['_setCustomVar', 2, 'version', version, 1]);
 			spv.domReady(window.document, function(){
