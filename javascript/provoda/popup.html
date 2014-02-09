@@ -20,21 +20,24 @@
         <div>
           <div class="cur_con_song">
             <div class="current_song" pv-nest="current_song">
-              <div class="csong_song_image">
-                <img
-                  alt=""
-                  class="hidden"
-                  pv-props="
-                    alt: {{song_title}}
-                    src: {{(selected_image.lfm_id && 'http://userserve-ak.last.fm/serve/64s/' + selected_image.lfm_id) || selected_image.url}}
-                  "
-                  pv-class="{{!selected_image && 'hidden'}}"/>
+              <div class="current_song-main_body">
+                  <div class="csong_song_image">
+                    <img
+                      alt=""
+                      class="hidden"
+                      pv-props="
+                        alt: {{song_title}}
+                        src: {{(selected_image.lfm_id && 'http://userserve-ak.last.fm/serve/64s/' + selected_image.lfm_id) || selected_image.url}}
+                      "
+                      pv-class="{{!selected_image && 'hidden'}}"/>
+                  </div>
+                  <div class="song_item-fullname">
+                    <div pv-text="{{track}}"></div>
+                    <div class="song_item-artistname"pv-text="{{artist}}"></div>
+                    
+                  </div>
               </div>
-              <div class="song_item-fullname">
-                <div pv-text="{{track}}"></div>
-                <div class="song_item-artistname"pv-text="{{artist}}"></div>
-                
-              </div>
+              
               <div class="files_block">
                 <div class="files_list_switch" pv-events="click:showFiles">
                   Файлы
@@ -53,67 +56,103 @@
                   <div class="arrow-part current_song-arrow-bg "></div>
                 </div>
               </div>
+              <div class="song-actions">
+                <div pv-nest="actionsrow" class="actionsrow">
+                  <ul class="track-buttons">
+                    <li class="">
+                        <span class="trackbutton lfm-scrobbling-button" pv-anchor="btrow-lastfm" pv-events="click::switchPart:row-lastfm"></span>
+                    </li>
+                  </ul>
+                  <div class="volume-control" pv-anchor="volume-control">
+                    <div class="v-hole" pv-anchor="v-hole">
+                      <div class="v-bar" pv-anchor="v-bar" pv-props="style.width: {{vis_volume}}"></div>
+                    </div>
+                  </div>
+                  <div 
+                  pv-anchor="row_context"
+                  class="song-row-content hidden"
+                  pv-class="song-row-content {{!active_part && 'hidden'}}"
+                  >
+                    <div class="song-row-content_scroll_wrapper">
+                      <div class="last-fm-scrobbling hidden" pv-nest="context_parts for_model:row-lastfm" pv-class="last-fm-scrobbling {{!active_view && 'hidden'}}"></div>
+                    </div>
+                    <span class="rc-arrow hidden" pv-anchor="arrow" pv-props="style.left: {{arrow_pos}}" pv-class="rc-arrow {{!active_part && 'hidden'}}">
+                      <span class=" rc-s-arrow arrow-part"><span class="rc-s-arrow-bg arrow-part"></span></span>
+                    </span>
 
-              <div>
-                <div class="volume-control">
-                  <div class="v-hole" pv-anchor="v-hole">
-                    <div class="v-bar" pv-anchor="v-bar" pv-props="style.width: {{vis_volume}}"</div>
+                    
+                  </div>
+
+
+                </div>
+
+                <ul class="track-buttons">
+                  <li>
+                    <span class="trackbutton play_prev" pv-events="click::playPrev"></span>
+                  </li>
+                  <li>
+                    <span class="trackbutton play_next" pv-events="click::playNext"></span>
+                  </li>
+                </ul>
+
+              </div>
+            </div>
+          </div>
+          <div class="main_container">
+              <div class="hidden" pv-class="{{has_current_playlist && 'hidden'}}" >
+
+                Откройте last.fm, чтобы воспользоваться интеграцией
+                <div class="welcome_popblock">
+                  <ul>
+                    <li pv-repeat="artist in popular_artists" class="wecome_popular_artist">
+                       
+                      <a href="" pv-props="href:{{artist.url}}" target="_blank" >
+                        <span pv-text="{{artist.artist_name}}"></span><br/>
+                        <span pv-text="{{artist.url}}" class="www_mark" pv-text></span>
+                      </a>
+                    </li>
+                    
+                  </ul>
+                </div>
+              </div>
+              <div class="cur_con_playlist">
+                <div class="playlist_con hidden" pv-class="playlist_con" pv-nest="current_playlist">
+                  <div pv-nest="songs-list" class="song_item " >
+                    <div class="song_item-buttons">
+                      <span 
+                        class="play_button" 
+                        pv-events="click::wantSong click::requestPage click::switchPlay"
+                        pv-class="play_button {{player_song && 'player_song'}} {{!player_song && want_to_play && 'wanted_song'}} "
+                        >
+                        <span class="searching_files-base" pv-class="searching_files-base {{searching_files && 'searching_files-progress'}}">
+                          <span
+                            class="play_button_icon"
+                            pv-class=" 
+                              play_button_icon 
+                              {{player_song && play == 'play' && 'pbicon-playing_song'}}
+                              {{has_none_files_to_play && 'has-none-files'}} 
+                              {{files_search.have_best_tracks && 'has_best_files'}} 
+                              {{files_search.have_mp3_tracks && 'has-some-files'}} "
+                            ></span>
+                        </span>
+                        
+                      </span>
+                      <span class="switch_file_button"></span>
+                    </div>
+                    
+
+                    <!--<span class="remove_song_button">&times;</span>-->
+                    
+                    <div class="song_item-fullname">
+                      <div class="song_item-artistname"pv-text="{{artist}}"></div>
+                      <div pv-text="{{track}}"></div>
+                    </div>
+                    
                   </div>
                 </div>
-
-
               </div>
-              
-              <div>
-                <img src="../../i/icon-play_prev-16.png" alt="" pv-events="click::playPrev">
-                <img src="../../i/icon-play_next-16.png" alt="" pv-events="click::playNext">
-              </div>
-              
-              <!--
-              <div pv-nest="current_mopla">
-                <span class="mf-duration" pv-text="{{visible_duration_text}}"></span>
-                <span class="main-mf-text" pv-text="{{title}}" pv-props="title:{{description}}"></span>
-                <span class="mf-source" pv-text="{{source_name}}"></span>
-              </div>-->
-              
-            </div>
           </div>
-          <div class="cur_con_playlist">
-            <div class="playlist_con hidden" pv-class="playlist_con" pv-nest="current_playlist">
-              <div pv-nest="songs-list" class="song_item " >
-                <div class="song_item-buttons">
-                  <span 
-                    class="play_button" 
-                    pv-events="click::wantSong click::requestPage click::switchPlay"
-                    pv-class="play_button {{player_song && 'player_song'}} {{!player_song && want_to_play && 'wanted_song'}} "
-                    >
-                    <span class="searching_files-base" pv-class="searching_files-base {{searching_files && 'searching_files-progress'}}">
-                      <span
-                        class="play_button_icon"
-                        pv-class=" 
-                          play_button_icon 
-                          {{player_song && play == 'play' && 'pbicon-playing_song'}}
-                          {{has_none_files_to_play && 'has-none-files'}} 
-                          {{files_search.have_best_tracks && 'has_best_files'}} 
-                          {{files_search.have_mp3_tracks && 'has-some-files'}} "
-                        ></span>
-                    </span>
-                    
-                  </span>
-                  <span class="switch_file_button"></span>
-                </div>
-                
-
-                <!--<span class="remove_song_button">&times;</span>-->
-                
-                <div class="song_item-fullname">
-                  <div class="song_item-artistname"pv-text="{{artist}}"></div>
-                  <div pv-text="{{track}}"></div>
-                </div>
-                
-              </div>
-            </div>
-          </div>
+          
           
           
         </div>
@@ -175,6 +214,44 @@
         </div>
         
       </div>
+
+
+      <div class="lfm-auth-module lfm_authsampl">
+        <div class="auth-block">
+          <p>
+            <span class="button-hole lastfm-auth-bp">
+              <a class="nicebutton lang localize-grant">grant</a>
+            </span>
+            <span class="lfm-auth-request-desc"></span>
+          </p>
+          <div class="lfm-finish">
+            <div class="lang localize-enter-code">
+              Enter here code
+            </div>
+            <div>
+              <input type="text" placeholder='Put your code here' class="lfm-code"/>
+              <span class="button-hole">
+                <a class="use-lfm-code nicebutton lang localize-use-code">Use code</a>
+              </span>
+              
+            </div>  
+          </div>
+        </div>
+      </div>
+
+
+      <form class="lfm_scrobling scrobbling-switches">
+        <p class="lang localize-lfm_scrobbling">
+          scrobbling to last.fm
+        </p>
+      
+        <p><label><input type="radio"  disabled="disabled" class="enable-scrobbling" /> 
+          <span class="lang localize-enabled">enabled</span>
+        </label></p>  
+        <p><label><input type="radio"  disabled="disabled" class="disable-scrobbling"  checked="checked" /> 
+          <span class="lang localize-disabled">disabled</span>
+        </label></p>
+      </form>
     </div>
  </body>
  </html>

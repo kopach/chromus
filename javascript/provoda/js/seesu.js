@@ -9,7 +9,15 @@ ScApi, ExfmApi, torrent_searches, FuncsQueue, LastfmAPIExtended,
 AppModel, comd, LfmAuth, StartPage, SeesuServerAPI, VkAuth, VkApi, initVk,
 PlayerSeesu, invstg, cache_ajax, ProspApi) {
 'use strict';
-var seesu_version = 4.3;
+var app_version =  3.0;
+/*
++ ссылка для проверки интеграции
+локализация
+устранение seesu из предложений в интерфейсе
+починить счётчик google
+сделать vk raw search
+заменить api keys
+*/
 var
 	localize = app_serv.localize,
 	app_env = app_serv.app_env;
@@ -35,6 +43,46 @@ $.ajaxSetup({
 $.support.cors = true;
 
 
+var app_ver = app_serv.store('last-app-ver');
+if (!app_ver) {
+	var used_before = !!localStorage['latest_playlist'];
+	if (used_before) {
+		var lfm_sess = localStorage['lastfm_session'];
+		var lfm_username = localStorage['lastfm_username'];
+
+		if (lfm_sess && lfm_username) {
+			app_serv.store('lfmsk', lfm_sess, true);
+			app_serv.store('lfm_user_name', lfm_username, true);
+			
+			
+		}
+
+		var garbage_keys = ['new_changes_2.9.692', 'stop_after_playing', 'search_pattern', 'search_provider', 'skip_previews', 'show_notifications', 'show_banner'];
+
+		garbage_keys.push('lastfm_session', 'lastfm_username', 'latest_playlist', 'play_mode', 'repeat_mode');
+		garbage_keys.forEach(function(el) {
+			delete localStorage[el];
+		});
+	}
+}
+
+
+/*
+app-usage-last
+app-usage-counter
+last-app-ver*/
+
+/*
+
+
+
+
+
+
+
+*/
+
+
 var lfm = new LastfmAPIExtended();
 
 lfm.init(app_serv.getPreloadedNK('lfm_key'), app_serv.getPreloadedNK('lfm_secret'), function(key){
@@ -56,6 +104,7 @@ var ChromeExtensionButtonView = function() {};
 provoda.View.extendTo(ChromeExtensionButtonView, {
 	state_change: {
 		"playing": function(state) {
+			return;
 			if (state){
 				chrome.browserAction.setIcon({path:"/icons/icon19p.png"});
 			} else {
@@ -90,9 +139,21 @@ AppModel.extendTo(SeesuApp, {
 		var _this = this;
 		this.lfm_auth = new LfmAuth(lfm, {
 			deep_sanbdox: app_env.deep_sanbdox,
-			callback_url: 'http://seesu.me/lastfm/callbacker.html',
-			bridge_url: 'http://seesu.me/lastfm/bridge.html'
+			callback_url: '',
+			bridge_url: ''
 		});
+
+
+		chrome.extension.onConnect.addListener(function(port) {
+			if (port.name == "lfm_auth") {
+				port.onMessage.addListener(function(msg) {
+					if (msg.method == "lfm_auth_token") {
+						_this.lfm_auth.setToken(msg.token);
+					}
+				});
+			}
+		});
+
 
 		this.lfm_auth.once("session", function() {
 			_this.setSetting('lfm-scrobbling', true);
@@ -549,6 +610,8 @@ AppModel.extendTo(SeesuApp, {
 					notification.cancel();
 				}, 6000);
 			}
+
+			_this.start_page.updateState('has_current_playlist', !!e.value);
 			//console.log(e.value, e.target);
 
 		});
@@ -951,7 +1014,7 @@ AppModel.extendTo(SeesuApp, {
 });
 
 seesu = su = new SeesuApp();
-su.init(seesu_version);
+su.init(app_version);
 provoda.sync_s.setRootModel(su);
 
 

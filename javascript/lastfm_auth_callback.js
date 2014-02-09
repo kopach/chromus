@@ -1,10 +1,9 @@
-if(match = window.location.toString().match(/token=(.*)/)){    
-	console.warn('asdasd');
+var match = window.location.toString().match(/token=(.*)/);
+if (match) {
 	
-    var port = chrome.extension.connect({name: "auth_callback"})
-
-    document.forms.web.text.style.display = 'none'
-    
-    port.postMessage({method:'auth_token', token: match[1]})
+	var port = chrome.extension.connect({name: "lfm_auth"});
+	
+	port.postMessage({method:'lfm_auth_token', token: match[1]});
+	window.close();
 }
 

@@ -72,6 +72,13 @@ BrowseMap.Model.extendTo(StartPage, {
 		this.updateState('needs_search_from', true);
 		this.updateState('nav_title', 'Seesu start page');
 		this.updateState('nice_artist_hint', this.app.popular_artists[(Math.random()*10).toFixed(0)]);
+		var _this = this;
+		this.updateState('popular_artists', this.app.popular_artists.map(function(el) {
+			return {
+				artist_name: el,
+				url: 'http://last.fm/music/' + _this.app.encodeURLPart(el)
+			};
+		}));
 
 //		this.updateNesting('pstuff', this.getSPI('users/me', true));
 //		this.updateNesting('muco', this.getSPI('conductor', true));

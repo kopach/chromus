@@ -1,4 +1,7 @@
 body {margin:0;padding:0;width:550px;height:600px;}
+ul,ol{
+	list-style: none;
+}
 ul,ol,p,h1,h2,h3,h4,h6,h6,dt,dl,dd{margin:0;padding: 0}
 body {
 	font: 14px/1.5 Arial, sans-serif;
@@ -18,7 +21,7 @@ body {
 
 
 	.cur_con_song {
-		height: 98px;
+		height: 115px;
 		background-image: linear-gradient(#f3f3f3,#eee);
 		border-bottom: 2px solid #aaa;
 		overflow: hidden;
@@ -33,9 +36,12 @@ body {
 				width: 100%;
 				height: 100%;
 			}
-	.cur_con_playlist {
-		height: 500px;
+	.main_container {
+		height: 483px;
 		overflow: auto;
+	}
+	.cur_con_playlist {
+		
 	}
 
 		.song_item{
@@ -62,13 +68,23 @@ body {
 		.current_song {
 
 		}
+			.current_song-main_body {
+				height: 52px;
+				overflow: hidden;
+			}
+			.current_song .actionsrow {
+				float:right;
+			}
 
+			.song-actions {
+				margin-top: 0.5rem;
+			}
 		.current_song {
 
 		}
 		.files_block{
 			
-
+			height: 23px;
 			clear: both;
 			padding: 3px;
 			overflow: hidden;
@@ -132,10 +148,10 @@ body {
 
 		.current_song-arrow{
 			z-index: 6;
-		right: 10px;	
-		top:-11px;
-		border: 11px solid;
-		border-color: transparent   transparent  #D8D8D8 transparent ;
+			right: 10px;	
+			top:-11px;
+			border: 11px solid;
+			border-color: transparent   transparent  #D8D8D8 transparent ;
 		}
 		.current_song-arrow-bg {
 			top: -10px;
@@ -151,35 +167,232 @@ body {
 	padding: 6px 6px 6px 22px;
 	width: 62px;
 	height: 8px;
-	border: 1px solid #515151;
+	border: 1px solid #bbb;
 	border-radius: 10px;
-	background: #5E5E5E url(chrome-extension://__MSG_@@extension_id__/i/icon-volume.png) no-repeat 3px 50%;
+	background: #fff url(chrome-extension://__MSG_@@extension_id__/i/icon-volume.png) no-repeat 3px 50%;
 	}
 
 	.volume-control:hover{
-		border-color: #4F4F4F;
-		background-color: #5A5A5A;
+		border-color: #aaa;
+		background-color: #eee;
 		}
 	.v-hole{
 		position: relative;
 		border: 1px solid transparent;
-		border-top: 1px solid #4D4D4D;
-		border-bottom: 1px solid #5E5E5E;
+		border-top: 1px solid #aaa;
+		border-bottom: 1px solid #bbb;
 		border-radius: 3px;
-		background: #555;
+		background: #ccc;
 		}
 		.v-bar{
 			height: 6px;
 			border: 1px solid transparent;
-			border-top: 1px solid #666;
-			border-bottom: 1px solid #454545;
+			border-top: 1px solid #fff;
+			border-bottom: 1px solid #eee;
 			border-radius: 3px;
-			background: #5E5E5E;
+			background: #fff;
 			}
 		.volume-control:hover .v-bar{
-			background-color: #5f5f5f;
+			background-color: #eee;
 		}
 	.volume-control.interactive-state{
 		border-color:transparent;
 		background-color:transparent;
+		}
+.actionsrow {
+	padding-right:0.5rem;
+}
+	.track-buttons {
+		float:left;
+		padding-right: 5px;
+	}
+		.track-buttons > li {
+			float: left;
+			margin-left: 6px;
+			width: 16px;
+			height: 16px;
+			border-radius: 2px;
+			line-height: 16px;
+		}
+
+
+		.trackbutton {
+			display: block;
+			width: 16px;
+			height: 16px;
+			border-bottom: 0;
+			border-radius: 4px;
+			line-height: inherit;
+			cursor: pointer;
+		}
+			.lfm-scrobbling-button {
+				background: transparent url(chrome-extension://__MSG_@@extension_id__/i/icon-lfm.png) no-repeat 50% 50%;
+			}
+			.play_prev {
+				border-radius: 8px;
+				background: transparent url(chrome-extension://__MSG_@@extension_id__/i/icon-play_prev-16.png) no-repeat 50% 50%;
+			}
+			.play_next {
+				border-radius: 8px;
+				background: transparent url(chrome-extension://__MSG_@@extension_id__/i/icon-play_next-16.png) no-repeat 50% 50%;
+			}
+
+		.trackbutton:hover{
+			background-color: #ccc;
+			}
+			.trackbutton:active{
+				background-position: 0 1px;
+				box-shadow: inset 0 0 2px 1px #999;
+				}
+		
+		.volume-control {
+			float:left;
+		}
+	.song-row-content {
+		position: absolute;
+		top:113px;
+		z-index: 5;
+		left:0;
+		right:0;
+		
+		
+		background: #eee;
+		border-radius: 6px;
+		border: 1px solid #999;
+		
+	}	
+	.song-row-content_scroll_wrapper {
+		max-height: 440px;
+		overflow: auto;
+		padding: 1rem;
+	}
+		.rc-arrow {
+			position: absolute;
+			top: -11px;
+			margin-left: -11px;
+			height: 11px;
+			width: 22px;
+			overflow: hidden;
+		}
+		.rc-s-arrow{
+			z-index: 6;
+			top:-11px;
+			border: 11px solid;
+			border-color: transparent   transparent  #999 transparent ;
+			}
+			.rc-s-arrow-bg {
+				top: -10px;
+				left: -11px;
+				border: 11px solid;
+				border-color: transparent transparent #eee transparent  ;
+				}
+
+
+
+/* scrobbling */
+	.has_session .scrobbling-switches{ 
+		opacity:1;
+		}
+
+	.scrobbling-switches{
+		opacity:0.3;
+		
+		}
+	.lfm-finish{
+		display:none;
+		opacity:0.3;
+	}
+	.deep-sandbox .lfm-finish{
+		display:block;
+	}
+	.lfm-finish .lfm-code{
+		margin-right: 1.72rem;
+		width: 314px;
+	}
+	.waiting-auth .lfm-finish{
+		opacity:1;
+	}
+	.lfm-auth p{
+		margin:0.3rem 0;
+		}
+	.lfm-auth .real-lfm-auth-part{
+		margin-bottom:20px;
+	}
+	.lfm-auth-module .auth-block{
+		overflow: hidden;
+	}
+
+	.login-lastfm-button,.lastfm-auth-bp{
+		float:right;
+		margin-left:1rem;
+	}
+
+	.lfm-auth form{
+		margin-bottom:2.5rem;
+		padding-bottom:1rem;
+		}
+
+
+/*nice buttons*/
+	.disabledbutton, .nicebutton{
+		display:block;
+		padding:3px 11px;
+		border-top:1px solid transparent;
+		border-bottom: 1px solid transparent;
+		border-radius:11px;
+		text-decoration:none;
+		font-style:normal;
+	}
+
+	.nicebutton{ 
+		border-top:1px solid #626262;
+		border-right: 0;
+		border-bottom:1px solid #3D3D3D;
+		border-left: 0;
+		background-image: -o-linear-gradient(#5a5a5a,#4a4a4a);
+		background-image: -moz-linear-gradient(100% 0% 270deg, #5a5a5a, #4a4a4a);
+		background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#5a5a5a), to(#4a4a4a));
+		background-image: linear-gradient(#5a5a5a,#4a4a4a);
+		color:#aaa;
+		cursor:pointer;
+			
+		}
+		.nicebutton:hover{
+			background-image: -o-linear-gradient(#5a5a5a,#444);
+			background-image: -moz-linear-gradient(100% 0% 270deg, #5a5a5a, #444);
+			background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#5a5a5a), to(#444)) ;
+			background-image: linear-gradient(#5a5a5a,#444);
+			}
+	.nicebutton:active{
+		box-shadow:inset 0 0 10px 1px #111;
+		}
+		.nicebutton:active{
+			padding-top:4px;
+			padding-bottom:4px;
+			border-width:0;
+			border-color:transparent;
+		}
+.welcome_popblock {
+	overflow: hidden;
+}
+	.wecome_popular_artist a {
+		display: block;
+		height: 40px;
+		float: left;
+		width: 210px;
+		background: #f5f5f5;
+		margin-right: 5px;
+		margin-bottom: 5px;
+		border-radius: 6px;
+		padding: 5px;
+		color: #000;
+		text-decoration: none;
+		}
+		.wecome_popular_artist a:hover {
+			background-color: #5C7FDA;
+			color:#fff;
+		}
+		.wecome_popular_artist a:active {
+			background-color: #333;
+			color:#fff;
 		}

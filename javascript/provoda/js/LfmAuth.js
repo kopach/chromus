@@ -146,12 +146,15 @@ provoda.Eventor.extendTo(LfmAuth, {
 		var o = {};
 		o.link = 'http://www.last.fm/api/auth/?api_key=' + this.api.apikey ;
 		var link_tag = this.opts.callback_url;
-		if (!this.opts.deep_sanbdox){
-			o.bridgekey = hex_md5(Math.random() + 'bridgekey'+ Math.random());
-			link_tag += '?key=' + o.bridgekey;
+		if (link_tag) {
+			if (!this.opts.deep_sanbdox){
+				o.bridgekey = hex_md5(Math.random() + 'bridgekey'+ Math.random());
+				link_tag += '?key=' + o.bridgekey;
+			}
+			
+			o.link += '&cb=' + encodeURIComponent(link_tag);
 		}
 		
-		o.link += '&cb=' + encodeURIComponent(link_tag);
 		return o;
 	},
 	waitData: function() {
