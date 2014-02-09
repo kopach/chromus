@@ -232,6 +232,11 @@ lfm_share_url_replacers.forEach(function(el, i) {
 				return "";
 			}
 		},
+		setPlayPositionMark: function(state) {
+			if (this.player.c_song == this) {
+				this.app.setPlayPositionMark(state);
+			}
+		},
 		mlmDie: function() {
 			this.hideOnMap();
 		},

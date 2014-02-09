@@ -533,6 +533,38 @@ AppModel.extendTo(SeesuApp, {
 			})();
 
 		}
+
+		chrome.browserAction.setBadgeText({text: ''});
+		chrome.browserAction.setBadgeBackgroundColor({color: '#00cf75'});
+
+		this.start_page.on('child_change-current_song', function(e) {
+			if (e.value) {
+				var img_obj = e.value.state('selected_image');
+				var image_url = img_obj && ((img_obj.lfm_id && 'http://userserve-ak.last.fm/serve/64s/' + img_obj.lfm_id) || img_obj.url);
+				//var {{(selected_image.lfm_id && 'http://userserve-ak.last.fm/serve/64s/' + selected_image.lfm_id) || selected_image.url}}
+				//e.value.state()
+				var notification = window.webkitNotifications.createNotification( image_url || '' , e.value.state('track'), e.value.state('artist'));
+				notification.show();
+				setTimeout(function(){
+					notification.cancel();
+				}, 6000);
+			}
+			//console.log(e.value, e.target);
+
+		});
+	},
+	/*
+
+
+	var notification = window.webkitNotifications.createNotification(track.image, track.song, track.artist)
+    notification.show()
+
+    */
+	setPlayPositionMark: function(state) {
+		//chrome.browserAction.setBadgeBackgroundColor({color:[51,153,204,255]}) //blue
+		//#00e883
+		chrome.browserAction.setBadgeText({text: state || ''});
+		//this.updateState('play_position_text', state);
 	},
 	migrateStorage: function(ver){
 		if (!ver){

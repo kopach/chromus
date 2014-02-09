@@ -79,18 +79,28 @@ provoda.Model.extendTo(FileInTorrent, {
 				return duration || loaded_duration;
 			}
 		],
-		'compx-play_position': [
+		'compx-countdown_duration': [
 			['visible_duration', 'playing_progress'],
 			function(duration, playing_progress) {
-				return Math.round(duration * playing_progress);
+				return duration - Math.round(duration * playing_progress);
 			}
 		],
+		'stch-countdown_duration_text': function(state) {
+			if (!this.mo) {
+				return;
+			}
+			if (this.mo.getNesting('current_mopla') == this) {
+				this.mo.setPlayPositionMark(state);
+			}
+
+			
+		},
 		getNiceSeconds: function(state) {
 			if (typeof state == 'number'){
 				var duration = Math.round(state/1000);
 				if (duration){
 					var digits = duration % 60;
-					return  spv.zerofyString(Math.floor(duration/60), 2) + ':' + spv.zerofyString(digits, 2);
+					return (Math.floor(duration/60)) + ':' + spv.zerofyString(digits, 2);
 				}
 			}
 		},
@@ -100,8 +110,8 @@ provoda.Model.extendTo(FileInTorrent, {
 				return this.getNiceSeconds(state);
 			}
 		],
-		'compx-play_position_text': [
-			['play_position'],
+		'compx-countdown_duration_text': [
+			['countdown_duration'],
 			function (state) {
 				return this.getNiceSeconds(state);
 			}

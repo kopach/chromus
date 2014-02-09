@@ -20,7 +20,16 @@
         <div>
           <div class="cur_con_song">
             <div class="current_song" pv-nest="current_song">
-              <div class="csong_song_image"></div>
+              <div class="csong_song_image">
+                <img
+                  alt=""
+                  class="hidden"
+                  pv-props="
+                    alt: {{song_title}}
+                    src: {{(selected_image.lfm_id && 'http://userserve-ak.last.fm/serve/64s/' + selected_image.lfm_id) || selected_image.url}}
+                  "
+                  pv-class="{{!selected_image && 'hidden'}}"/>
+              </div>
               <div class="song_item-fullname">
                 <div pv-text="{{track}}"></div>
                 <div class="song_item-artistname"pv-text="{{artist}}"></div>
@@ -43,6 +52,16 @@
                 <div class="arrow-part current_song-arrow">
                   <div class="arrow-part current_song-arrow-bg "></div>
                 </div>
+              </div>
+
+              <div>
+                <div class="volume-control">
+                  <div class="v-hole" pv-anchor="v-hole">
+                    <div class="v-bar" pv-anchor="v-bar" pv-props="style.width: {{vis_volume}}"</div>
+                  </div>
+                </div>
+
+
               </div>
               
               <div>
