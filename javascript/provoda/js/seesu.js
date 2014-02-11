@@ -12,11 +12,12 @@ PlayerSeesu, invstg, cache_ajax, ProspApi) {
 var app_version =  3.0;
 /*
 + ссылка для проверки интеграции
-локализация
++ локализация
 + устранение {{seesu}} из предложений в интерфейсе
 + починить загрузку счётчика google
 сделать vk raw search
 + заменить api keys
++ восстановление последнего плейлиста
 */
 var
 	localize = app_serv.localize,
@@ -42,29 +43,37 @@ $.ajaxSetup({
 });
 $.support.cors = true;
 
+(function() {
+	var app_ver = app_serv.store('last-app-ver');
+	if (!app_ver) {
 
-var app_ver = app_serv.store('last-app-ver');
-if (!app_ver) {
-	var used_before = !!localStorage['latest_playlist'];
-	if (used_before) {
-		var lfm_sess = localStorage['lastfm_session'];
-		var lfm_username = localStorage['lastfm_username'];
+		var used_before = app_serv.store('latest_playlist');
+		if (used_before) {
+			var last_playlist = used_before.map(function(el) {
+				return [el.artist, el.song];
+			});
+			app_serv.store('last_lfmpage_playlist', last_playlist, true);
 
-		if (lfm_sess && lfm_username) {
-			app_serv.store('lfmsk', lfm_sess, true);
-			app_serv.store('lfm_user_name', lfm_username, true);
-			
-			
+			var lfm_sess = localStorage['lastfm_session'];
+			var lfm_username = localStorage['lastfm_username'];
+
+			if (lfm_sess && lfm_username) {
+				app_serv.store('lfmsk', lfm_sess, true);
+				app_serv.store('lfm_user_name', lfm_username, true);
+				
+				
+			}
+
+			var garbage_keys = ['new_changes_2.9.692', 'stop_after_playing', 'search_pattern', 'search_provider', 'skip_previews', 'show_notifications', 'show_banner'];
+
+			garbage_keys.push('lastfm_session', 'lastfm_username', 'latest_playlist', 'play_mode', 'repeat_mode');
+			garbage_keys.forEach(function(el) {
+				delete localStorage[el];
+			});
 		}
-
-		var garbage_keys = ['new_changes_2.9.692', 'stop_after_playing', 'search_pattern', 'search_provider', 'skip_previews', 'show_notifications', 'show_banner'];
-
-		garbage_keys.push('lastfm_session', 'lastfm_username', 'latest_playlist', 'play_mode', 'repeat_mode');
-		garbage_keys.forEach(function(el) {
-			delete localStorage[el];
-		});
 	}
-}
+
+})();
 
 
 /*
@@ -610,8 +619,6 @@ AppModel.extendTo(SeesuApp, {
 					notification.cancel();
 				}, 6000);
 			}
-
-			_this.start_page.updateState('has_current_playlist', !!e.value);
 			//console.log(e.value, e.target);
 
 		});

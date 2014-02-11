@@ -18,28 +18,10 @@ BrowseMap.Model.extendTo(LFMPagePlalists, {
 		this._super(opts);
 		var list = new Array(data.length);
 		for (var i = 0; i < data.length; i++) {
-			list[i] = this.getTestPlaylist(data[i]);
+			list[i] = this.map_parent.createLFMPagePlaylist(data[i]);
 			list[i].updateState('item_num', i);
 		}
 		this.updateNesting('main_list', list);
-	},
-	getTestPlaylist: function(playlist_items) {
-		var playlist_title = 'test playlist';
-		var playlist = this.app.createSonglist(this, {
-			title: playlist_title,
-			type: "cplaylist",
-			data: {name: playlist_title}
-		});
-
-		playlist.tickRequestedData(false, morph_map.execute(playlist_items));
-
-		var song_list = playlist.getNesting('songs-list');
-
-		for (var i = 0; i < song_list.length; i++) {
-			song_list[i].updateState('item_num', i);
-		}
-
-		return playlist;
 	}
 });
 
@@ -52,6 +34,26 @@ BrowseMap.Model.extendTo(StartPage, {
 	model_name: 'start_page',
 	page_name: 'start page',
 	zero_map_level: true,
+	createLFMPagePlaylist: function(playlist_items) {
+		var playlist_title = 'test playlist';
+		var playlist = this.app.createSonglist(this, {
+			title: playlist_title,
+			type: "cplaylist",
+			data: {name: playlist_title}
+		});
+
+		playlist.tickRequestedData(false, morph_map.execute(playlist_items));
+
+		playlist.raw_playlist_data = playlist_items;
+
+		var song_list = playlist.getNesting('songs-list');
+
+		for (var i = 0; i < song_list.length; i++) {
+			song_list[i].updateState('item_num', i);
+		}
+
+		return playlist;
+	},
 	showPlaylists: function(){
 		su.search(':playlists');
 	},
@@ -76,7 +78,7 @@ BrowseMap.Model.extendTo(StartPage, {
 		this.updateState('popular_artists', this.app.popular_artists.map(function(el) {
 			return {
 				artist_name: el,
-				url: 'http://last.fm/music/' + _this.app.encodeURLPart(el)
+				url: 'http://last.fm/music/' + _this.app.encodeURLPart(el) + '/+charts'
 			};
 		}));
 
@@ -92,6 +94,27 @@ BrowseMap.Model.extendTo(StartPage, {
 
 			}
 		});
+		this.last_lfmpage_playlist = app_serv.store('last_lfmpage_playlist');
+
+		this.on('child_change-current_playlist', function(e) {
+			if (e.value) {
+				this.updateState('has_current_playlist', true);
+
+				if (e.value.raw_playlist_data != this.last_lfmpage_playlist) {
+					this.last_lfmpage_playlist = e.value.raw_playlist_data;
+					app_serv.store('last_lfmpage_playlist', this.last_lfmpage_playlist.slice(150), true);
+				}
+			}
+			//console.log(e.value, e.target);
+		});
+
+		if (this.last_lfmpage_playlist) {
+			this.updateNesting('current_playlist', this.createLFMPagePlaylist(this.last_lfmpage_playlist));
+		}
+
+		
+
+		
 
 /*
 		
