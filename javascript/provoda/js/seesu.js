@@ -13,10 +13,10 @@ var app_version =  3.0;
 /*
 + ссылка для проверки интеграции
 локализация
-устранение seesu из предложений в интерфейсе
-починить счётчик google
+устранение {{seesu}} из предложений в интерфейсе
+починить загрузку счётчика google
 сделать vk raw search
-заменить api keys
++ заменить api keys
 */
 var
 	localize = app_serv.localize,
@@ -359,7 +359,7 @@ AppModel.extendTo(SeesuApp, {
 			window._gaq.push(['_setCustomVar', 1, 'environmental', (!app_env.unknown_app ? app_env.app_type : 'unknown_app'), 1]);
 			window._gaq.push(['_setCustomVar', 2, 'version', version, 1]);
 			spv.domReady(window.document, function(){
-				app_serv.loadJS('js/common-libs/ga.mod.min.js', function(){
+				requirejs(['ga'],function(){
 					console.log('ga done');
 				});
 			});

@@ -4,6 +4,7 @@ var big_timer;
 requirejs.config({
 	baseUrl: 'javascript/provoda',
 	paths: {
+		ga: 'js/common-libs/ga.mod.min',
 		provoda: 'js/libs/provoda',
 		spv: 'js/libs/spv',
 		su: 'js/seesu',
