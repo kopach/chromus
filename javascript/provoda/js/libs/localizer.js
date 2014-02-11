@@ -1,4 +1,8 @@
-define({
+define(function() {
+
+
+
+var data = {
 	"music-cond": {
 		"original": "Music Conductor",
 		"ru": "Музыкальный кондуктор"
@@ -247,7 +251,7 @@ define({
 	},
 	"user-granted-lfm": {
 		"original": "I've granted my account access to Seesu",
-		"ru": "Я дал Сису доступ к своей учётной записи"
+		"ru": "Я дал %app_name% доступ к своей учётной записи"
 	},
 	"give-reccoms": {
 		"original": "give me recommendations",
@@ -338,8 +342,8 @@ define({
 		"ru": "странице безопасности флеша"
 	},
 	"and-restart": {
-		"original": "and then restart Seesu",
-		"ru": "и перезапусти Сису"
+		"original": "and then restart %app_name%",
+		"ru": "и перезапусти %app_name%"
 	},
 	"addto-lfm-favs": {
 		"original": "add to favorites",
@@ -375,8 +379,8 @@ define({
 		"ru": "Чтобы получить доступ"
 	},
 	"lfm-auth-invitation": {
-		"original": "you must grant access to Seesu from last.fm",
-		"ru": "тебе нужно дать Сису доступ к своей учётной записи на last.fm"
+		"original": "you must grant access to %app_name% from last.fm",
+		"ru": "тебе нужно дать %app_name% доступ к своей учётной записи на last.fm"
 	},
 	"to-find-and-play":{
 		
@@ -444,8 +448,8 @@ define({
 		"ru": 'Пароль'
 	},
 	"savepass": {
-		"original": "Save password in Seesu",
-		"ru": "Сохранить пароль в Сису"
+		"original": "Save password in %app_name%",
+		"ru": "Сохранить пароль в %app_name%"
 	},
 	"rept-song": {
 		"original": "Repeat playling song",
@@ -568,8 +572,8 @@ define({
 		"ru": "показать все файлы"
 	},
 	"ask-rating-help":{
-		"original": "Hi! My name is Gleb. I've created seesu and I have been developing it since september 2009. If you like it, than set rating %app_url% please. This is very important for me.",
-		"ru": "Привет, меня зовут Глеб, я создал сису и развиваю её с сентября 2009 года. Если она тебе нравится прошу поставить оценку %app_url% — это очень важно для меня. Довольные люди обычно не ставят оценок, при этом недовольных никакая лень не остановит :("
+		"original": "Hi! My name is Gleb. I've created %app_name% and I have been developing it since september 2009. If you like it, than set rating %app_url% please. This is very important for me.",
+		"ru": "Привет, меня зовут Глеб, я создал %app_name% и развиваю её с сентября 2009 года. Если она тебе нравится прошу поставить оценку %app_url% — это очень важно для меня. Довольные люди обычно не ставят оценок, при этом недовольных никакая лень не остановит :("
 	},
 	"at-this-page": {
 		"original": "at this page",
@@ -758,15 +762,34 @@ define({
 		"ru": "Теги артиста"
 	},
 	"dmca_notice":{
-		"original": "Seesu follows terms of service of each api it uses. Seesu does not store any content. Each service follows DMCA. Feel free to report abuse.",
-		"ru": "Сису соблюдает условия использования каждого сервиса, которого она использует и не хранит какого-либо контента. Каждый сервис соблюдает DMCA. Вы имеете возможность направить им жалобы на нарушения копирайта."
+		"original": "%app_name% follows terms of service of each api it uses. %app_name% does not store any content. Each service follows DMCA. Feel free to report abuse.",
+		"ru": "%app_name% соблюдает условия использования каждого сервиса, которого она использует и не хранит какого-либо контента. Каждый сервис соблюдает DMCA. Вы имеете возможность направить им жалобы на нарушения копирайта."
 	},
 	"report-abuse":{
 		"original": "report abuse",
 		"ru": "пожаловаться"
 	},
+	"welcome-lfm-links":{
+		"original": "Open any last.fm page to try integration",
+		"ru": "Откройте какую-нибудь страницу на last.fm, чтобы воспользоваться интеграцией"
+	},
 	"":{
 		"original": "",
 		"ru": ""
 	}
+};
+
+
+var replacers = {
+	app_name: 'LFMP'
+};
+
+
+for (var key_name in data) {
+	for (var lang in data[key_name]) {
+		data[key_name][lang] = data[key_name][lang].replace('%app_name%', replacers['app_name']);
+	}
+}
+
+return data;
 });

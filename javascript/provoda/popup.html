@@ -40,7 +40,8 @@
               
               <div class="files_block">
                 <div class="files_list_switch" pv-events="click:showFiles">
-                  Файлы
+                  <span class="lang localize-files">Files</span>
+                  
                 </div>
                 <div class="current_mopla_con" pv-anchor="current_mopla_con">
 
@@ -101,8 +102,14 @@
           <div class="main_container">
               <div class="hidden" pv-class="{{has_current_playlist && 'hidden'}}" >
 
-                Откройте last.fm, чтобы воспользоваться интеграцией
+                
+
+                
                 <div class="welcome_popblock">
+                  <div class="lang localize-welcome-lfm-links">
+                    Open any last.fm page to try integration
+                  </div>
+                  <br>
                   <ul>
                     <li pv-repeat="artist in popular_artists" class="wecome_popular_artist">
                        

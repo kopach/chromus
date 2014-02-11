@@ -46,6 +46,13 @@ requirejs.config({
 	}
 });
 
+require(['spv', 'app_serv'], function(spv, app_serv) {
+	if (!window){
+		return;
+	}
+	app_serv.handleDocument(window.document);
+});
+
 require(['provoda', 'spv', 'js/views/AppView', 'angbo'], function(provoda, spv, AppView, angbo) {
 	var has_app_root_view;
 	var sync_r = new provoda.SyncR(stream);

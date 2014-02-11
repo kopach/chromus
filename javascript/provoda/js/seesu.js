@@ -13,8 +13,8 @@ var app_version =  3.0;
 /*
 + ссылка для проверки интеграции
 локализация
-устранение {{seesu}} из предложений в интерфейсе
-починить загрузку счётчика google
++ устранение {{seesu}} из предложений в интерфейсе
++ починить загрузку счётчика google
 сделать vk raw search
 + заменить api keys
 */
@@ -856,7 +856,7 @@ AppModel.extendTo(SeesuApp, {
 			this.app_view_id = null;
 		}
 	},
-	vkappid: 2271620,
+	vkappid: 0,
 	getAuthAndTransferVKInfo: function(vk_api, user_id) {
 		if (!user_id){
 			throw new Error('want to get photo but have not user id :(');
