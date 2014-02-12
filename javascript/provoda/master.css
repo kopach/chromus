@@ -400,3 +400,14 @@ body {
 	.www_mark {
 		color:#888;
 	}
+
+.song_item-artistname:hover {
+	cursor: pointer;
+	color:blue;
+	text-decoration: underline;
+}
+.song_item-trackname:hover {
+	cursor: pointer;
+	color:blue;
+	text-decoration: underline;
+}

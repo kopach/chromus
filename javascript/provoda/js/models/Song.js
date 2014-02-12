@@ -373,7 +373,13 @@ lfm_share_url_replacers.forEach(function(el, i) {
 				this.updateState('has_nested_artist', true);
 			}
 			//this.loadSongListeners();
-		})
+		}),
+		requestLFMArtistPage: function() {
+			app_env.openURL('http://last.fm/music/' + this.app.encodeURLPart(this.state('artist')));
+		},
+		requestLFMATrackPage: function() {
+			app_env.openURL('http://last.fm/music/' + this.app.encodeURLPart(this.state('artist')) + '/_/'+ this.app.encodeURLPart(this.state('track')) );
+		}
 	});
 return Song;
 });

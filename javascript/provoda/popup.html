@@ -32,8 +32,8 @@
                       pv-class="{{!selected_image && 'hidden'}}"/>
                   </div>
                   <div class="song_item-fullname">
-                    <div pv-text="{{track}}"></div>
-                    <div class="song_item-artistname"pv-text="{{artist}}"></div>
+                    <div class="song_item-trackname" pv-text="{{track}}" pv-events="click::requestLFMATrackPage"></div>
+                    <div class="song_item-artistname" pv-text="{{artist}}" pv-events="click::requestLFMArtistPage"></div>
                     
                   </div>
               </div>
@@ -151,8 +151,8 @@
                     <!--<span class="remove_song_button">&times;</span>-->
                     
                     <div class="song_item-fullname">
-                      <div class="song_item-artistname"pv-text="{{artist}}"></div>
-                      <div pv-text="{{track}}"></div>
+                      <div class="song_item-artistname" pv-text="{{artist}}" pv-events="click::requestLFMArtistPage"></div>
+                      <div class="song_item-trackname" pv-text="{{track}}" pv-events="click::requestLFMATrackPage"></div>
                     </div>
                     
                   </div>
