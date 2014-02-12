@@ -15,9 +15,10 @@ var app_version =  3.0;
 + локализация
 + устранение {{seesu}} из предложений в интерфейсе
 + починить загрузку счётчика google
-сделать vk raw search
+  сделать vk raw search
 + заменить api keys
 + восстановление последнего плейлиста
+  клик по имени артиста, по названию трека
 */
 var
 	localize = app_serv.localize,
@@ -53,6 +54,7 @@ $.support.cors = true;
 				return [el.artist, el.song];
 			});
 			app_serv.store('last_lfmpage_playlist', last_playlist, true);
+			app_serv.store('lfmp_migrated', true, true);
 
 			var lfm_sess = localStorage['lastfm_session'];
 			var lfm_username = localStorage['lastfm_username'];
@@ -60,9 +62,8 @@ $.support.cors = true;
 			if (lfm_sess && lfm_username) {
 				app_serv.store('lfmsk', lfm_sess, true);
 				app_serv.store('lfm_user_name', lfm_username, true);
-				
-				
 			}
+
 
 			var garbage_keys = ['new_changes_2.9.692', 'stop_after_playing', 'search_pattern', 'search_provider', 'skip_previews', 'show_notifications', 'show_banner'];
 
