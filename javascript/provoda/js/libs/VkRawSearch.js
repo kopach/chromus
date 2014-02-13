@@ -1,10 +1,10 @@
-define(['spv', 'hex_md5', 'js/libs/Mp3Search', 'jquery'], function(spv, hex_md5, Mp3Search, $){
+define(['spv', 'hex_md5', 'js/libs/Mp3Search', 'jquery', 'js/modules/wrapRequest'], function(spv, hex_md5, Mp3Search, $, wrapRequest){
 "use strict";
 var VkRawSearch = function(opts) {
 	//this.api = opts.api;
-	this.quene = opts.mp3_search;
 	this.mp3_search = opts.mp3_search;
-
+	this.queue = opts.queue;
+	this.cache_ajax = opts.cache_ajax;
 
 };
 var standart_props = {
@@ -43,9 +43,21 @@ VkRawSearch.prototype = {
 		}
 		return cursor;
 	},
-	sendRequest: function(query, params, opts) {
-		return $.ajax({
+	cache_namespace: 'vkraw',
+	sendRequest: function(query, params, options) {
+		options = options || {};
+		options.cache_key = options.cache_key || hex_md5('audio' + spv.stringifyParams(params));
+
+	//	var	params_full = params || {};
+		//params_full.consumer_key = this.key;
+
+
+		//cache_ajax.get('vk_api', p.cache_key, function(r){
+
+		var wrap_def = wrapRequest({
 			url: 'https://vk.com/audio',
+			type: "GET",
+			dataType: 'text',
 			data: {
 				act: 'search',
 				al: 1,
@@ -55,8 +67,19 @@ VkRawSearch.prototype = {
 				performer: 0,
 				q: query,
 				sort: 0
-			}
+			},
+			timeout: 20000,
+			context: options.context
+		}, {
+			cache_ajax: this.cache_ajax,
+			nocache: options.nocache,
+			cache_key: options.cache_key,
+			cache_timeout: options.cache_timeout,
+			cache_namespace: this.cache_namespace,
+			queue: this.queue
 		});
+
+		return wrap_def.complex;
 	},
 	findAudio: function(msq, opts) {
 		var
@@ -86,12 +109,8 @@ VkRawSearch.prototype = {
 					var wrap = document.createElement("div");
 					wrap.innerHTML = r;
 
-
-
 					var audio_nodes = $(wrap).find('div.audio');
 
-
-					//var raw_items = [];
 
 					audio_nodes.each(function(i, el) {
 						
