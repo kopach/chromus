@@ -105,7 +105,7 @@ ProspMusicSearch.prototype = {
 	makeSong: function(cursor, msq){
 		cursor.models = {};
 		cursor.getSongFileModel = Mp3Search.getSongFileModel;
-		cursor.duration = cursor.duration && cursor.duration * 1000; 
+		cursor.duration = cursor.duration && cursor.duration * 1000;
 		spv.cloneObj(cursor, standart_props);
 
 		if (!cursor.artist){

@@ -108,7 +108,7 @@ BrowseMap.Model.extendTo(StartPage, {
 			//console.log(e.value, e.target);
 		});
 
-		if (this.last_lfmpage_playlist) {
+		if (this.last_lfmpage_playlist && this.last_lfmpage_playlist.length) {
 			this.updateNesting('current_playlist', this.createLFMPagePlaylist(this.last_lfmpage_playlist));
 		}
 
