@@ -10,16 +10,7 @@ AppModel, comd, LfmAuth, StartPage, SeesuServerAPI, VkAuth, VkApi, initVk,
 PlayerSeesu, invstg, cache_ajax, ProspApi, VkRawSearch) {
 'use strict';
 var app_version =  3.0;
-/*
-+ ссылка для проверки интеграции
-+ локализация
-+ устранение {{seesu}} из предложений в интерфейсе
-+ починить загрузку счётчика google
-  сделать vk raw search
-+ заменить api keys
-+ восстановление последнего плейлиста
-  клик по имени артиста, по названию трека
-*/
+
 var
 	localize = app_serv.localize,
 	app_env = app_serv.app_env;
