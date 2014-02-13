@@ -103,6 +103,9 @@ VkRawSearch.prototype = {
 
 		async_ans.done = function(cb) {
 			olddone.call(this, function(r) {
+				if (r.indexOf( 'action="https://login.vk.com/"' ) != -1 ) {
+					cb(null, 'mp3');
+				}
 				if (!result){
 					var music_list = [];
 

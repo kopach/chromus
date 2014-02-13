@@ -388,11 +388,15 @@ body {
 		padding: 5px;
 		color: #000;
 		text-decoration: none;
+		overflow: hidden;
 		}
 		.wecome_popular_artist a:hover {
 			background-color: #5C7FDA;
 			color:#fff;
 		}
+			.wecome_popular_artist a:hover .www_mark {
+				color: #eee;
+			}
 		.wecome_popular_artist a:active {
 			background-color: #333;
 			color:#fff;

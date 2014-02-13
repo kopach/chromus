@@ -102,7 +102,7 @@ BrowseMap.Model.extendTo(StartPage, {
 
 				if (e.value.raw_playlist_data != this.last_lfmpage_playlist) {
 					this.last_lfmpage_playlist = e.value.raw_playlist_data;
-					app_serv.store('last_lfmpage_playlist', this.last_lfmpage_playlist.slice(150), true);
+					app_serv.store('last_lfmpage_playlist', this.last_lfmpage_playlist.slice(0, 150), true);
 				}
 			}
 			//console.log(e.value, e.target);
