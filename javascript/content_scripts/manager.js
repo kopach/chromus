@@ -240,10 +240,14 @@ TrackList.prototype.getTrack = function(row){
         track_info = row.querySelectorAll('.track a')
 
     // If inside artist page
-    if(this.artist && !this.element.className.match('big') && !document.getElementById('thePlaylist'))
-        return [this.artist, track_info[0].innerText]
-    else
-        return [track_info[0].innerText, track_info[1] ? track_info[1].innerText : undefined]
+    if (track_info.length == 2) {
+        return [track_info[0].innerText, track_info[1].innerText];
+    } if( this.artist && !this.element.className.match('big') && !document.getElementById('thePlaylist'))
+        return [this.artist, track_info[0].innerText];
+    else {
+        return [track_info[0].innerText, track_info[1] ? track_info[1].innerText : undefined];
+    }
+        
 };
 
 TrackList.prototype.insertLink = function(row, track, cmtnode) {
