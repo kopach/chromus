@@ -239,13 +239,21 @@ TrackList.prototype.getTrack = function(row){
     if(track_info.length == 0)
         track_info = row.querySelectorAll('.track a')
 
+    var links_array = [];
+    for (var i = 0; i < track_info.length; i++) {
+        if (track_info[i].href.indexOf('freedownloads.last.fm') == -1) {
+            links_array.push( track_info[i] );
+        }
+        
+    }
+
     // If inside artist page
-    if (track_info.length == 2) {
-        return [track_info[0].innerText, track_info[1].innerText];
+    if (links_array.length == 2) {
+        return [links_array[0].innerText, links_array[1].innerText];
     } if( this.artist && !this.element.className.match('big') && !document.getElementById('thePlaylist'))
-        return [this.artist, track_info[0].innerText];
+        return [this.artist, links_array[0].innerText];
     else {
-        return [track_info[0].innerText, track_info[1] ? track_info[1].innerText : undefined];
+        return [links_array[0].innerText, links_array[1] ? links_array[1].innerText : undefined];
     }
         
 };
