@@ -600,18 +600,32 @@ AppModel.extendTo(SeesuApp, {
 		chrome.browserAction.setBadgeText({text: ''});
 		chrome.browserAction.setBadgeBackgroundColor({color: '#00cf75'});
 
-		if (window.webkitNotifications && window.webkitNotifications.createNotification && window.Notification.permission =='granted') {
+
+		//Notification.requestPermission( function(result) { currentPermission = result  } );
+
+		if (window.Notification && window.Notification.permission =='granted') {
 			this.start_page.on('child_change-current_song', function(e) {
 				if (e.value) {
 					var img_obj = e.value.state('selected_image');
 					var image_url = img_obj && ((img_obj.lfm_id && 'http://userserve-ak.last.fm/serve/64s/' + img_obj.lfm_id) || img_obj.url);
 					//var {{(selected_image.lfm_id && 'http://userserve-ak.last.fm/serve/64s/' + selected_image.lfm_id) || selected_image.url}}
 					//e.value.state()
-					var notification = window.webkitNotifications.createNotification( image_url || '' , e.value.state('track'), e.value.state('artist'));
+
+					var mopla = e.value.mopla;
+					var notification = new window.Notification(e.value.state('track'), {
+						tag: 'song',
+						body: e.value.state('artist') + '\n' + mopla.state('source_name') + ', ' + mopla.state('title'),
+						icon: image_url
+					});
 					notification.show();
+
 					setTimeout(function(){
 						notification.cancel();
 					}, 6000);
+
+					/*var notification = window.webkitNotifications.createNotification( image_url || '' , e.value.state('track'), e.value.state('artist'));
+					notification.show();
+					*/
 				}
 				//console.log(e.value, e.target);
 

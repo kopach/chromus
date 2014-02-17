@@ -50,6 +50,6 @@
      "page":"background.html"
    },
    "options_page": "options.html",
-   "permissions": ["tabs", "http://*/", "https://*/"],
+   "permissions": ["notifications", "tabs", "http://*/", "https://*/"],
    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com/ga.js https://www.google.com/buzz/api/button.js https://static.addtoany.com/menu/page.js https://gumroad.com/js/gumroad-button.js https://gumroad.com/js/gumroad-button.js; object-src 'self'; "
 }
