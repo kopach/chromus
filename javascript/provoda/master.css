@@ -73,12 +73,18 @@ body {
 				overflow: hidden;
 			}
 			.current_song .actionsrow {
-				float:right;
+				
 			}
 
 			.song-actions {
 				margin-top: 0.5rem;
 			}
+				.spec_song_buttons {
+					float:left;
+				}
+				.song_options {
+					float:right;
+				}
 		.current_song {
 
 		}
@@ -235,6 +241,10 @@ body {
 			.play_next {
 				border-radius: 8px;
 				background: transparent url(chrome-extension://__MSG_@@extension_id__/i/icon-play_next-16.png) no-repeat 50% 50%;
+			}
+			.love_button {
+				border-radius: 8px;
+				background: transparent url(chrome-extension://__MSG_@@extension_id__/i/icon-love-16.png) no-repeat 50% 50%;
 			}
 
 		.trackbutton:hover{
@@ -414,4 +424,8 @@ body {
 	cursor: pointer;
 	color:blue;
 	text-decoration: underline;
+}
+
+.disabledbutton {
+	color:#888;
 }

@@ -58,17 +58,38 @@
                 </div>
               </div>
               <div class="song-actions">
+                <ul class="track-buttons spec_song_buttons">
+                  <li>
+                    <span class="trackbutton play_prev" pv-events="click::playPrev"></span>
+                  </li>
+                  <li>
+                    <span class="trackbutton play_next" pv-events="click::playNext"></span>
+                  </li>
+                  
+                </ul>
                 <div pv-nest="actionsrow" class="actionsrow">
-                  <ul class="track-buttons">
-                    <li class="">
-                        <span class="trackbutton lfm-scrobbling-button" pv-anchor="btrow-lastfm" pv-events="click::switchPart:row-lastfm"></span>
-                    </li>
-                  </ul>
-                  <div class="volume-control" pv-anchor="volume-control">
-                    <div class="v-hole" pv-anchor="v-hole">
-                      <div class="v-bar" pv-anchor="v-bar" pv-props="style.width: {{vis_volume}}"></div>
+
+                  <div class="song_options">
+                    <ul class="track-buttons">
+                      <li class="">
+                          <span class="trackbutton lfm-scrobbling-button" pv-anchor="btrow-lastfm" pv-events="click::switchPart:row-lastfm"></span>
+                      </li>
+                    </ul>
+                    
+                    <div class="volume-control" pv-anchor="volume-control">
+                      <div class="v-hole" pv-anchor="v-hole">
+                        <div class="v-bar" pv-anchor="v-bar" pv-props="style.width: {{vis_volume}}"></div>
+                      </div>
                     </div>
                   </div>
+                  <div class="">
+                    <ul class="track-buttons">
+                      <li>
+                        <span class="trackbutton love_button" pv-anchor="btrow-love" pv-events="click::switchPart:row-love"></span>
+                      </li>
+                    </ul>
+                  </div>
+                  
                   <div 
                   pv-anchor="row_context"
                   class="song-row-content hidden"
@@ -76,10 +97,14 @@
                   >
                     <div class="song-row-content_scroll_wrapper">
                       <div class="last-fm-scrobbling hidden" pv-nest="context_parts for_model:row-lastfm" pv-class="last-fm-scrobbling {{!active_view && 'hidden'}}"></div>
+                      <div class="love-song hidden" pv-nest="context_parts for_model:row-love" pv-class="love-song {{!active_view && 'hidden'}}"></div>
                     </div>
+                    
+
                     <span class="rc-arrow hidden" pv-anchor="arrow" pv-props="style.left: {{arrow_pos}}" pv-class="rc-arrow {{!active_part && 'hidden'}}">
                       <span class=" rc-s-arrow arrow-part"><span class="rc-s-arrow-bg arrow-part"></span></span>
                     </span>
+
 
                     
                   </div>
@@ -87,14 +112,7 @@
 
                 </div>
 
-                <ul class="track-buttons">
-                  <li>
-                    <span class="trackbutton play_prev" pv-events="click::playPrev"></span>
-                  </li>
-                  <li>
-                    <span class="trackbutton play_next" pv-events="click::playNext"></span>
-                  </li>
-                </ul>
+                
 
               </div>
             </div>

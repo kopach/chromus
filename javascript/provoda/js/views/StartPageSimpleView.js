@@ -1,4 +1,4 @@
-define(['provoda'], function(provoda) {
+define(['provoda', 'jquery', 'app_serv'], function(provoda, $, app_serv) {
 "use strict";
 
 var SongFileModelUI = function() {};
@@ -337,6 +337,62 @@ LfmLoginView.extendTo(LfmScrobbleView, {
 		this.chbx_disabl.prop('checked', !state);
 	}
 });
+var LfmLoveItView = function() {};
+LfmLoginView.extendTo(LfmLoveItView, {
+	createBase: function() {
+		this._super();
+		var _this = this;
+		var wrap = $('<div class="add-to-lfmfav"></div>');
+
+		this.nloveb = this.root_view.createNiceButton();
+		this.nloveb.c.appendTo(wrap);
+		this.nloveb.b.click(function(){
+			if (_this.nloveb._enabled){
+				_this.RPCLegacy('makeLove');
+			}
+		});
+		this.addWayPoint(this.nloveb.b);
+		this.nloveb.b.text(app_serv.localize('addto-lfm-favs'));
+		this.c.append(wrap);
+		
+	
+	},
+	"stch-has_session": function(state) {
+		state = !!state;
+		this.c.toggleClass('has_session', state);
+		this.auth_block.toggleClass('hidden', state);
+		this.nloveb.toggle(state);
+	},
+	"stch-wait_love_done": function(state){
+		this.c.toggleClass('wait_love_done', !!state);
+	}
+});
+
+
+
+var LoveRowUI = function(){};
+provoda.View.extendTo(LoveRowUI, {
+	children_views: {
+		lfm_loveit: LfmLoveItView
+	},
+
+	"stch-active_view": function(state){
+		if (state){
+			if (this.expand){
+				this.expand();
+			}
+		}
+	},
+	expand: function(){
+		if (this.expanded){
+			return;
+		} else {
+			this.expanded = true;
+		}
+		this.c.append(this.getAFreeCV('lfm_loveit'));
+		this.requestAll();
+	}
+});
 
 
 
@@ -382,15 +438,16 @@ ActionsRowUI.extendTo(SongActionsRowUI, {
 	children_views: {
 		'row-lastfm': {
 			main: ScrobbleRowUI
+		},
+		'row-love': {
+			main: LoveRowUI
 		}
 		/*
 		"row-repeat-song": {
 			main: RepeatSongRowView
 		},
 		
-		'row-love': {
-			main: LoveRowUI
-		},
+		,
 		'row-share': {
 			main: ShareRowUI
 		},
