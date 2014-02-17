@@ -25,8 +25,8 @@ var song_string = '<span ' +
                   '      play_button_icon '+
                   '      {{player_song && play == \'play\' && \'pbicon-playing_song\'}}'+
                   '      {{has_none_files_to_play && \'has-none-files\'}} '+
-                  '      {{files_search.have_best_tracks && \'has_best_files\'}} '+
-                  '      {{files_search.have_mp3_tracks && \'has-some-files\'}} "'+
+                  '      {{!has_none_files_to_play && files_search.have_best_tracks && \'has_best_files\'}} '+
+                  '      {{!has_none_files_to_play && files_search.have_mp3_tracks && \'has-some-files\'}} "'+
                   '    ></span>'+
                   '</span>'+
                   
