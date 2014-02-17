@@ -103,9 +103,10 @@ ProspMusicSearch.prototype = {
 		return this.makeSong(item);
 	},
 	makeSong: function(cursor, msq){
+		cursor.artist = cursor.artist + '';
 		cursor.models = {};
 		cursor.getSongFileModel = Mp3Search.getSongFileModel;
-		cursor.duration = cursor.duration && cursor.duration * 1000;
+		cursor.duration = cursor.duration && cursor.duration * 1000; 
 		spv.cloneObj(cursor, standart_props);
 
 		if (!cursor.artist){
@@ -115,6 +116,7 @@ ProspMusicSearch.prototype = {
 				cursor.track = guess_info.track;
 			}
 		}
+
 		
 		if (msq){
 			this.mp3_search.setFileQMI(cursor, msq);
@@ -151,7 +153,7 @@ ProspMusicSearch.prototype = {
 			olddone.call(this, function(r) {
 				if (!result){
 
-					var list = datamorph_map.execute(r);
+					var list = datamorph_map(r);
 					var music_list = [];
 
 					for (var i = 0; i < list.length; i++) {

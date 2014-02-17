@@ -42,7 +42,7 @@ BrowseMap.Model.extendTo(StartPage, {
 			data: {name: playlist_title}
 		});
 
-		playlist.tickRequestedData(false, morph_map.execute(playlist_items));
+		playlist.tickRequestedData(false, morph_map(playlist_items));
 
 		playlist.raw_playlist_data = playlist_items;
 

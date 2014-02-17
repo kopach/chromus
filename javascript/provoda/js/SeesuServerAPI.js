@@ -290,6 +290,9 @@ provoda.Eventor.extendTo(SeesuServerAPI, {
 			type: "GET",
 			url: _this.url + 'api/',
 			data: params,
+			headers:{
+				'X-Requested-With': 'XMLHttpRequest'
+			},
 			success: function(r){
 				if (r){
 					if (r.error && r.error[0]  && r.error[0] == 'wrong signature'){

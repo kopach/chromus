@@ -59,15 +59,28 @@ AppBaseView.viewOnLevelP = viewOnLevelP;
 provoda.View.extendTo(AppBaseView, {
 	dom_rp: true,
 	location_name: 'root_view',
+	init: function(opts, vopts) {
+		this.calls_flow = new provoda.CallbacksFlow(spv.getDefaultView(vopts.d), true);
+		return this._super.apply(this, arguments);
+	},
+	_getCallsFlow: function() {
+		return this.calls_flow;
+	},
 	createDetails: function() {
+		
 		this.root_view = this;
 		this.d = this.opts.d;
+
+		
+
 		this.tpls = [];
 		this.els = {};
 		this.samples = {};
 		this.lev_containers = {};
-		this.dom_related_props.push('samples', 'lev_containers', 'els');
+		this.max_level_num = -1;
+		this.dom_related_props.push('samples', 'lev_containers', 'els', 'calls_flow');
 		this.completely_rendered_once = {};
+
 	},
 	completeDomBuilding: function() {
 		this.connectStates();
@@ -85,6 +98,7 @@ provoda.View.extendTo(AppBaseView, {
 			if (num == -1){
 				throw new Error('start_screen must exist');
 			}
+
 			var node = this.getSample('complex-page');
 
 			var tpl = new this.PvTemplate({
@@ -96,13 +110,33 @@ provoda.View.extendTo(AppBaseView, {
 
 			this.tpls.push(tpl);
 			tpl.setStates(this.states);
+			
+
+
+
+			var next_lev_con;
+			for (var i = num; i <= this.max_level_num; i++) {
+				if (this.lev_containers[i]) {
+					next_lev_con = this.lev_containers[i];
+					break;
+				}
+			}
+			if (next_lev_con) {
+				node.insertBefore(next_lev_con.c);
+			} else {
+				node.appendTo(this.els.app_map_con);
+			}
+			
+
 			var lev_con = new LevContainer
-					(node.appendTo(this.els.app_map_con),
+					(node,
 					tpl.ancs['scroll_con'],
 					tpl.ancs['material'],
 					tpl,
 					this);
 			this.lev_containers[num] = lev_con;
+
+			this.max_level_num = Math.max(this.max_level_num, num);
 			return lev_con;
 		}
 	},
@@ -148,7 +182,6 @@ provoda.View.extendTo(AppBaseView, {
 	},
 	scrollTo: function(jnode, view_port, opts) {
 		if (!jnode){return false;}
-		opts = opts || {};
 	//	if (!this.view_port || !this.view_port.node){return false;}
 
 		//var scrollingv_port = ;
@@ -160,7 +193,7 @@ provoda.View.extendTo(AppBaseView, {
 			return;
 		}
 
-		var view_port_limit = opts.vp_limit || 1;
+		var view_port_limit = (opts && opts.vp_limit) || 1;
 
 		var svp = view_port || this.getScrollVP(),
 			scroll_c = svp.offset ? svp.node :  svp.node,
@@ -198,7 +231,7 @@ provoda.View.extendTo(AppBaseView, {
 			//new_position =  node_position - scrolling_viewport_height/2;
 		}
 		if (new_position){
-			if (opts.animate){
+			if (opts && opts.animate){
 				scroll_c
 					.stop(false, true)
 					.animate({
@@ -246,14 +279,14 @@ provoda.View.extendTo(AppBaseView, {
 	
 	markAnimationStart: function(models, changes_number) {
 		for (var i = 0; i < models.length; i++) {
-			models[i].getMD().mpx.updateState('animation_started', changes_number);
+			this.getStoredMpx(models[i].getMD()).updateState('animation_started', changes_number);
 			////MUST UPDATE VIEW, NOT MODEL!!!!!
 		}
 	},
 	markAnimationEnd: function(models, changes_number) {
 		for (var i = 0; i < models.length; i++) {
 			//
-			var mpx = models[i].getMD().mpx;
+			var mpx = this.getStoredMpx(models[i].getMD());
 
 			if (mpx.state('animation_started') == changes_number){
 				mpx.updateState('animation_completed', changes_number);
@@ -266,7 +299,7 @@ provoda.View.extendTo(AppBaseView, {
 		if (this['spec-vget-' + model_name]){
 			return this['spec-vget-' + model_name](md);
 		} else {
-			return this.getChildView(md.mpx, 'main');
+			return this.getChildView(this.getStoredMpx(md), 'main');
 		}
 	},
 	getMapSliceChildInParenView: function(md) {
@@ -277,9 +310,9 @@ provoda.View.extendTo(AppBaseView, {
 		if (!parent_view){
 			return;
 		}
-		var target_in_parent = parent_view.getChildView(md.mpx, 'main');
+		var target_in_parent = parent_view.getChildView(this.getStoredMpx(md), 'main');
 		if (!target_in_parent){
-			var view = parent_view.getChildViewsByMpx(md.mpx);
+			var view = parent_view.getChildViewsByMpx(this.getStoredMpx(md));
 			target_in_parent = view && view[0];
 		}
 		return target_in_parent;
@@ -356,15 +389,15 @@ provoda.View.extendTo(AppBaseView, {
 			//	parent.updateState('mp_has_focus', false);
 			}
 			//mpx.updateState(prop, changes_number);
-			this.setVMpshow(change.target.getMD().mpx, change.value);
+			this.setVMpshow(this.getStoredMpx(change.target.getMD()), change.value);
 		},
 		'zoom-out': function(change) {
-			this.setVMpshow(change.target.getMD().mpx, false);
+			this.setVMpshow(this.getStoredMpx(change.target.getMD()), false);
 		},
 		'destroy': function(change) {
 			var md = change.target.getMD();
 		//	md.mlmDie();
-			this.setVMpshow(md.mpx, false);
+			this.setVMpshow(this.getStoredMpx(md), false);
 		}
 	},
 	animateMapSlice: function(transaction_data, animation_data) {
@@ -379,7 +412,7 @@ provoda.View.extendTo(AppBaseView, {
 			cur = all_changhes[i];
 			var target = cur.target.getMD();
 			if (cur.type == 'destroy'){
-				this.removeChildViewsByMd(target.mpx);
+				this.removeChildViewsByMd(this.getStoredMpx(target));
 			}
 		}
 
@@ -454,7 +487,7 @@ provoda.View.extendTo(AppBaseView, {
 	findBMapTarget: function(array) {
 		var target_md, i;
 		for (i = 0; i < array.length; i++) {
-			if (array[i].mpx.states.mp_has_focus) {
+			if (this.getStoredMpx(array[i]).states.mp_has_focus) {
 				target_md = array[i];
 				break;
 			}
@@ -508,7 +541,7 @@ provoda.View.extendTo(AppBaseView, {
 			}
 			this.markAnimationStart(models, -1);
 			for (i = 0; i < array.length; i++) {
-				this.setVMpshow(array[i].mpx, nesting_data.residents_struc.mp_show_states[i]);
+				this.setVMpshow(this.getStoredMpx(array[i]), nesting_data.residents_struc.mp_show_states[i]);
 			}
 			this.updateState('current_lev_num', target_md.map_level_num);
 			this.markAnimationEnd(models, -1);
@@ -587,7 +620,7 @@ provoda.View.extendTo(AppBaseView, {
 			}
 			var parent_md = md.getParentMapModel();
 			if (parent_md){
-				var mplev_item_view = md.mpx.getRooConPresentation(false, false, true);
+				var mplev_item_view = _this.getStoredMpx(md).getRooConPresentation(false, false, true);
 				var con = mplev_item_view && mplev_item_view.getC();
 				if (con && con.height()){
 					_this.scrollTo(mplev_item_view.getC(), {
