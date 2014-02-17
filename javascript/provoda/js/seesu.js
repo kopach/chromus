@@ -506,10 +506,14 @@ AppModel.extendTo(SeesuApp, {
 		var addBrowserView = function(Constr, name, opts) {
 			var view = new Constr();
 
-			_this.mpx.addView(view, name);
+
+			var mpx = _this.connectMPX();
+			
+
+			mpx.addView(view, name);
 
 			view.init({
-				mpx: _this.mpx
+				mpx: mpx
 			}, opts);
 			view.requestAll();
 
@@ -596,7 +600,7 @@ AppModel.extendTo(SeesuApp, {
 		chrome.browserAction.setBadgeText({text: ''});
 		chrome.browserAction.setBadgeBackgroundColor({color: '#00cf75'});
 
-		if (window.webkitNotifications && window.webkitNotifications.createNotification) {
+		if (window.webkitNotifications && window.webkitNotifications.createNotification && window.Notification.permission =='granted') {
 			this.start_page.on('child_change-current_song', function(e) {
 				if (e.value) {
 					var img_obj = e.value.state('selected_image');
