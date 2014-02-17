@@ -48,39 +48,42 @@ WrapperManager.prototype.registred_wrappers = {};
 
     Uses all registered wrappers to handle all the possible elements on the page.
 **/
-WrapperManager.prototype.wrapMusicElements = function(){
+var playlists_counter = 1;
+WrapperManager.prototype.wrapMusicElements = function(root_node){
 //    if(window.location.toString().match(/\/event\//))
 //        return
+
+    root_node = root_node || document;
 
     var artist = this.artist;
 
     for(var css_expr in this.registred_wrappers){
         var wrapper = this.registred_wrappers[css_expr];
 
-        var elements = document.querySelectorAll(css_expr);
+        var elements = root_node.querySelectorAll(css_expr);
                
         for(var i=0; i<elements.length; i++){
             var cur = elements[i];
 
             if(!cur.has_files_search){
 
-                var playlist = [];
+                var playlist = [playlists_counter++, []];
                 var dom_index = {};
                 try{
-                    new wrapper(elements[i], artist).injectSearch(playlist, dom_index);
+                    new wrapper(elements[i], artist).injectSearch(playlist[1], dom_index);
                     
                     this.container_count += 1;
                 } catch(e){
                     console.warn(elements[i]);
                     console.warn(e.message);
                 }
-                if (playlist.length) {
+                if (playlist[1].length) {
                     playlists_list.push(playlist);
 
-                    var playlist_num = playlists_list.length - 1;
+                    var playlist_num = playlist[0];
 
-                    for (var jj = 0; jj < playlist.length; jj++) {
-                        playlist[jj].playlist_num = playlist_num;
+                    for (var jj = 0; jj < playlist[1].length; jj++) {
+                        playlist[1][jj].playlist_num = playlist_num;
                     }
 
                     views_storage.songs[playlist_num] = dom_index;

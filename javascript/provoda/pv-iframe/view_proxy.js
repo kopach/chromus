@@ -76,7 +76,7 @@ var initPort = function() {
 	if (parsed) {
 		current_port.postMessage({
 			action: 'init_sender',
-			message: playlists_list
+			message: window.playlists_list
 		});
 	}
 
@@ -94,23 +94,77 @@ initPort();
 
 spv.domReady(document, function() {
 
+	var findParent = function(element, class_name){
+		var parent_node = element.parentNode;
+
+		while (parent_node) {
+			if (parent_node.className.indexOf(class_name) != -1) {
+				return parent_node;
+			}
+			parent_node = parent_node.parentNode;
+		}
+		return null;
+	};
+
 	// Tabs when switching in charts
-	//var tabs = document.querySelectorAll('.horizontalOptions, .nextPage, .previousPage');
+	if (window.MutationObserver) {
+		var tabs = document.querySelectorAll('.horizontalOptions, .nextPage, .previousPage');
 
-	
-	/*for(var i=0; i<tabs.length; i++){
-		tabs[i].addEventListener('click', function(){
-			setTimeout(function(){manager.wrapMusicElements(false)}, 1000)
-		}, false);
+		var parents = [];
+
+		var reportChanges = function() {
+			if (root_view) {
+				root_view.mpx.RPCLegacy('updateLFMPlaylists', window.playlists_list);
+			}
+		};
+
+		var bindClick = function(el, parent) {
+			el.addEventListener('click', function(){
+				setTimeout(function() {
+					window.manager.wrapMusicElements(parent);
+					reportChanges();
+				}, 100);
+			}, false);
+			
+		};
+		for (var i=0; i<tabs.length; i++){
+			var cur = tabs[i];
+			var cur_parent = findParent(cur, 'module');
+			if (!cur_parent) {
+				continue;
+			}
+			if (cur_parent && parents.indexOf(cur_parent) == -1) {
+				parents.push( cur_parent );
+			}
+			bindClick(tabs[i], cur_parent);
+			/*tabs[i].addEventListener('click', function(){
+				setTimeout(function(){manager.wrapMusicElements(false)}, 1000)
+			}, false);*/
+		}
+		tabs = null;
+
+		parents.forEach(function(el) {
+			var changesHandler = function() {
+				window.manager.wrapMusicElements(el);
+				reportChanges();
+			};
+			var mut_obr = new window.MutationObserver(changesHandler);
+			mut_obr.observe(el, {
+				childList: true
+			//	subtree: true
+			});
+			//window.manager.wrapMusicElements();
+		});
+
 	}
-	tabs = null;*/
+	
 
-	manager.wrapMusicElements();
+	window.manager.wrapMusicElements();
 
 	parsed = true;
 	current_port.postMessage({
 		action: 'init_sender',
-		message: playlists_list
+		message: window.playlists_list
 	});
 
 

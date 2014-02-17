@@ -16,10 +16,22 @@ BrowseMap.Model.extendTo(LFMPagePlalists, {
 	model_name: 'lfmsite_page',
 	init: function(opts, data) {
 		this._super(opts);
-		var list = new Array(data.length);
+		this.playlists_index = {};
+
+
+		this.updateLFMPlaylists(data);
+
+		
+	},
+	updateLFMPlaylists: function(data) {
+		var list = this.getNesting('main_list') || [];
 		for (var i = 0; i < data.length; i++) {
-			list[i] = this.map_parent.createLFMPagePlaylist(data[i]);
-			list[i].updateState('item_num', i);
+			if (!this.playlists_index[data[i][0]]) {
+				this.playlists_index[data[i][0]] = true;
+				list.push( this.map_parent.createLFMPagePlaylist(data[i]) );
+			}
+			
+			//list[i].updateState('item_num', i);
 		}
 		this.updateNesting('main_list', list);
 	}
@@ -34,14 +46,15 @@ BrowseMap.Model.extendTo(StartPage, {
 	model_name: 'start_page',
 	page_name: 'start page',
 	zero_map_level: true,
-	createLFMPagePlaylist: function(playlist_items) {
+	createLFMPagePlaylist: function( playlist_info ) {
+		var playlist_items = playlist_info[1];
 		var playlist_title = 'test playlist';
 		var playlist = this.app.createSonglist(this, {
 			title: playlist_title,
 			type: "cplaylist",
 			data: {name: playlist_title}
 		});
-
+		playlist.updateState('item_num', playlist_info[0]);
 		playlist.tickRequestedData(false, morph_map(playlist_items));
 
 		playlist.raw_playlist_data = playlist_items;
@@ -109,7 +122,7 @@ BrowseMap.Model.extendTo(StartPage, {
 		});
 
 		if (this.last_lfmpage_playlist && this.last_lfmpage_playlist.length) {
-			this.updateNesting('current_playlist', this.createLFMPagePlaylist(this.last_lfmpage_playlist));
+			this.updateNesting('current_playlist', this.createLFMPagePlaylist([0, this.last_lfmpage_playlist]));
 		}
 
 		

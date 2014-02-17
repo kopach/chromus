@@ -66,6 +66,7 @@ provoda.View.extendTo(SongView, {
 		this.createTemplate();
 		var outside_comment_node = spv.getTargetField(this.root_view.dom_storage.songs, [this.parent_view.state('item_num'), this.undetailed_states.item_num]);
 		$(outside_comment_node).after(this.c);
+		debugger;
 	},
 	tpl_events: {
 		showSong: function(e) {
