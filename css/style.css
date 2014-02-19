@@ -10,31 +10,31 @@ table.candyStriped.chart .sm2.button {
 
 table.mediumImageChart .vk_search_button, 
 #friendsLoved .vk_search_button,
-#friendsLoved .sm2_button,
+#friendsLoved .fmppb,
 #nowPlaying .vk_search_button,
-#nowPlaying .sm2_button,
-table.mediumImageChart .sm2_button,
+#nowPlaying .fmppb,
+table.mediumImageChart .fmppb,
 ul.artistsWithInfo .vk_search_button,
-ul.artistsWithInfo .sm2_button {
+ul.artistsWithInfo .fmppb {
     vertical-align:middle;
     display: inline-block;
     margin-right: 5px;
 }
 
-#nowPlaying .sm2_button,
-ul.artistsWithInfo .sm2_button,
+#nowPlaying .fmppb,
+ul.artistsWithInfo .fmppb,
 ul.artistsWithInfo .vk_search_button {
     margin-right: 0px;
 }
 
-ul.mediumChartWithImages .vk_search_button, ul.mediumChartWithImages .sm2_button {
+ul.mediumChartWithImages .vk_search_button, ul.mediumChartWithImages .fmppb {
     vertical-align:middle;
     display: inline;
     margin-right: 5px;
     padding-left: 0px;
 }
 
-td.playbuttonCell a.sm2_button {
+td.playbuttonCell a.fmppb {
     margin: 1px 3px 0 4px;
 }
 
@@ -99,13 +99,13 @@ div.ex_overload_window p.ex_title {
     margin-top: 0px;
 }
 
-ul.artistsLarge li a.sm2_button {
+ul.artistsLarge li .fmppb {
     position: absolute;
     top: 81px;
     left: 105px;
 }
 
-ul.artistRecs a.sm2_button {
+ul.artistRecs .fmppb {
     position: absolute;
     left: 45px;
     top: 34px;
@@ -117,22 +117,29 @@ ul.artistRecs span.playButton {
 .ex_artist a.sm2_button { background-color:#ccc; }
 .ex_album a.sm2_button { background-color:#ccc; }
 
-ul.artistsWithInfo a.sm2_button {
+ul.artistsWithInfo .fmppb {
     position: absolute;
     left: 105px;
     top: 80px;
 }
 
-ul.albumsMedium a.sm2_button {
+ul.albumsMedium .fmppb {
     position: absolute;
     left: 54px;
     top:47px;
 }
 
-ul.albumsLarge a.sm2_button {
+ul.albumsLarge .fmppb {
     position: absolute;
     left: 115px;
     top: 105px;
+}
+#albumstrip li .fmppb {
+    position: absolute;
+    right: 10px;
+    bottom: 5px;
+
+    z-index: 1;
 }
 
 #albumstrip li a.sm2_button {
@@ -148,7 +155,7 @@ ul.albumsLarge a.sm2_button {
     z-index: 1;
 }
 
-ul.recentAlbums li a.sm2_button, #newReleases .release a.sm2_button {
+ul.recentAlbums li .fmppb, #newReleases .release .fmppb {
     left: 50px;
     top: 47px;
     z-index: 2;

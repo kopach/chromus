@@ -15,9 +15,9 @@ define(['provoda', 'jquery', 'spv'], function(provoda, $, spv) {
 
 var song_string = '' +
 '<span ' +
-  'class="play_button" '+
+  'class="play_button fmppb" '+
   'pv-events="click:wantPlaying"'+
-  'pv-class="play_button {{player_song && \'player_song\'}} {{!player_song && want_to_play && \'wanted_song\'}} "'+
+  'pv-class="play_button fmppb {{player_song && \'player_song\'}} {{!player_song && want_to_play && \'wanted_song\'}} "'+
   '>'+
   '<span class="searching_files-base" pv-class="searching_files-base {{searching_files && \'searching_files-progress\'}}">'+
   '  <span'+
@@ -43,7 +43,7 @@ var song_sample = {
 
 var context_artist_string = '' +
 '<span ' +
-  'class="play_button" '+
+  'class="play_button fmppb" '+
   'pv-events="click:wantPlaying"'+
   '>'+
   '  <span'+
