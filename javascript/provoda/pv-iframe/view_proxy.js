@@ -98,7 +98,8 @@ spv.domReady(document, function() {
 		var parent_node = element.parentNode;
 
 		while (parent_node) {
-			if (parent_node.className.indexOf(class_name) != -1) {
+			var className = parent_node.className;
+			if (className && className.indexOf(class_name) != -1) {
 				return parent_node;
 			}
 			parent_node = parent_node.parentNode;
@@ -108,9 +109,10 @@ spv.domReady(document, function() {
 
 	// Tabs when switching in charts
 	if (window.MutationObserver) {
-		var tabs = document.querySelectorAll('.horizontalOptions, .nextPage, .previousPage');
+		var i, cur, cur_parent;
+		var tabs = document.querySelectorAll('.horizontalOptions');
 
-		var parents = [];
+		var parents, cur_parent;
 
 		var reportChanges = function() {
 			if (root_view) {
@@ -127,9 +129,11 @@ spv.domReady(document, function() {
 			}, false);
 			
 		};
-		for (var i=0; i<tabs.length; i++){
-			var cur = tabs[i];
-			var cur_parent = findParent(cur, 'module');
+
+		parents = [];
+		for (i=0; i<tabs.length; i++){
+			cur = tabs[i];
+			cur_parent = findParent(cur, 'module');
 			if (!cur_parent) {
 				continue;
 			}
@@ -143,18 +147,47 @@ spv.domReady(document, function() {
 		}
 		tabs = null;
 
-		parents.forEach(function(el) {
-			var changesHandler = function() {
-				window.manager.wrapMusicElements(el);
-				reportChanges();
-			};
-			var mut_obr = new window.MutationObserver(changesHandler);
-			mut_obr.observe(el, {
-				childList: true
-			//	subtree: true
+
+
+
+		var bindCons = function(parents) {
+			parents.forEach(function(el) {
+				var changesHandler = function() {
+					window.manager.wrapMusicElements(el);
+					reportChanges();
+				};
+				var mut_obr = new window.MutationObserver(changesHandler);
+				mut_obr.observe(el, {
+					childList: true
+				//	subtree: true
+				});
+				//window.manager.wrapMusicElements();
 			});
-			//window.manager.wrapMusicElements();
-		});
+		};
+		bindCons(parents);
+
+		var page_switchers = document.querySelectorAll('.nextPage, .previousPage');
+		if (page_switchers.length) {
+			parents = [];
+
+			var pages_cons = document.querySelectorAll('#pages .page');
+
+			for (i = 0; i < pages_cons.length; i++) {
+				
+				cur_parent = pages_cons[i] && pages_cons[i].parentNode;
+				if (cur_parent && parents.indexOf(cur_parent) == -1) {
+					parents.push( cur_parent );
+				}
+			}
+			bindCons(parents);
+			
+
+
+		}
+
+		/*for (var i = 0; i < page_switchers.length; i++) {
+			bindClick(page_switchers[i]);
+		}*/
 
 	}
 	
