@@ -13,24 +13,25 @@ define(['provoda', 'jquery', 'spv'], function(provoda, $, spv) {
 
 
 
-var song_string = '<span ' +
-                  'class="play_button" '+
-                  'pv-events="click::wantSong click::requestPage click::switchPlay"'+
-                  'pv-class="play_button {{player_song && \'player_song\'}} {{!player_song && want_to_play && \'wanted_song\'}} "'+
-                  '>'+
-                  '<span class="earching_files-base" pv-class="searching_files-base {{searching_files && \'searching_files-progress\'}}">'+
-                  '  <span'+
-                  '    class="play_button_icon"'+
-                  '    pv-class=" '+
-                  '      play_button_icon '+
-                  '      {{player_song && play == \'play\' && \'pbicon-playing_song\'}}'+
-                  '      {{has_none_files_to_play && \'has-none-files\'}} '+
-                  '      {{!has_none_files_to_play && files_search.have_best_tracks && \'has_best_files\'}} '+
-                  '      {{!has_none_files_to_play && files_search.have_mp3_tracks && \'has-some-files\'}} "'+
-                  '    ></span>'+
-                  '</span>'+
-                  
-               ' </span>';
+var song_string = '' +
+'<span ' +
+  'class="play_button" '+
+  'pv-events="click:wantPlaying"'+
+  'pv-class="play_button {{player_song && \'player_song\'}} {{!player_song && want_to_play && \'wanted_song\'}} "'+
+  '>'+
+  '<span class="searching_files-base" pv-class="searching_files-base {{searching_files && \'searching_files-progress\'}}">'+
+  '  <span'+
+  '    class="play_button_icon"'+
+  '    pv-class=" '+
+  '      play_button_icon '+
+  '      {{player_song && play == \'play\' && \'pbicon-playing_song\'}}'+
+  '      {{has_none_files_to_play && \'has-none-files\'}} '+
+  '      {{!has_none_files_to_play && files_search.have_best_tracks && \'has_best_files\'}} '+
+  '      {{!has_none_files_to_play && files_search.have_mp3_tracks && \'has-some-files\'}} "'+
+  '    ></span>'+
+  '</span>'+
+  
+' </span>';
 
 
 var song_sample = {
@@ -39,6 +40,24 @@ var song_sample = {
 	root_node: document.createElement('span')
 };
 
+
+var context_artist_string = '' +
+'<span ' +
+  'class="play_button" '+
+  'pv-events="click:wantPlaying"'+
+  '>'+
+  '  <span'+
+  '    class="play_button_icon"'+
+  '    ></span>'+
+  '</span>'+
+  
+' </span>';
+
+var context_artist_sample = {
+	string: context_artist_string,
+	sampler: null,
+	root_node: document.createElement('span')
+};
 
 var getSample = function(obj, PvTemplate) {
 	if (!obj.sampler) {
@@ -66,13 +85,30 @@ provoda.View.extendTo(SongView, {
 		this.createTemplate();
 		var outside_comment_node = spv.getTargetField(this.root_view.dom_storage.songs, [this.parent_view.state('item_num'), this.undetailed_states.item_num]);
 		$(outside_comment_node).after(this.c);
-		debugger;
 	},
 	tpl_events: {
-		showSong: function(e) {
-			e.preventDefault();
+		wantPlaying: function() {
 			this.RPCLegacy('wantSong');
 			this.RPCLegacy('requestPage');
+			this.RPCLegacy('switchPlay');
+		}
+	}
+});
+
+var ContextArtistView = function() {};
+provoda.View.extendTo(ContextArtistView, {
+	createBase: function() {
+		this.c = getSample(context_artist_sample, this.PvTemplate);
+		this.createTemplate();
+		var outside_comment_node = spv.getTargetField(this.root_view.dom_storage.artists, [this.undetailed_states.context_id]);
+		$(outside_comment_node).after(this.c);
+
+
+
+	},
+	tpl_events: {
+		wantPlaying: function() {
+			this.RPCLegacy('wantPlaying');
 
 		}
 	}
@@ -109,9 +145,12 @@ provoda.View.extendTo(LFMPageView, {
 		this.requestAll();
 	},
 	children_views: {
-		main_list: PlaylistView
+		main_list: PlaylistView,
+		artists_list: ContextArtistView
 	},
-	'collch-main_list': true
+
+	'collch-main_list': true,
+	'collch-artists_list': true
 	
 });
 
