@@ -161,3 +161,30 @@ ul.recentAlbums li .fmppb, #newReleases .release .fmppb {
     z-index: 2;
     position: absolute;
 }
+
+
+
+.play_button.fmppb {
+        display: inline-block;
+    }
+    .subjectCell .play_button.fmppb {
+        float:left;
+        margin-right: 10px;
+        position: relative;
+        top: 0px;
+        width: 14px;
+        height: 14px;
+        }
+        .subjectCell .play_button.fmppb .play_button_icon {
+            width: 14px;
+            height: 14px;
+            }
+    .fremup_item_preview {
+        position: relative;
+        }
+        .fremup_item_preview .fmppb {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            z-index: 1;
+            }

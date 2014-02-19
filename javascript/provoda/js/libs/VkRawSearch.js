@@ -110,7 +110,7 @@ VkRawSearch.prototype = {
 					var music_list = [];
 
 					var wrap = document.createElement("div");
-					wrap.innerHTML = r;
+					wrap.innerHTML = r.replace('<!--', '');
 
 					var audio_nodes = $(wrap).find('div.audio');
 

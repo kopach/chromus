@@ -193,6 +193,10 @@ AppModelBase.extendTo(AppModel, {
 		}
 		return this.start_page.getSPI('tracks/' + this.joinCommaParts([artist_name, track_name]), true);
 	},
+	getLFMAlbum: function(artist_name, album_name) {
+		var artcard = this.getArtcard(artist_name);
+		return artcard.getLFMAlbum(album_name);
+	},
 	getArtcard: function(artist_name) {
 
 		return this.start_page.getSPI('catalog/' + encodeURIComponent(artist_name), true);

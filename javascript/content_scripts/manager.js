@@ -10,19 +10,26 @@
 
     All wrappers have same interface and inherited from MusicDomElement. 
 **/
-
+var cloneObj = function(acceptor, donor) {
+    for (var prop_name in donor) {
+        if (donor.hasOwnProperty(prop_name)) {
+            acceptor[prop_name] = donor[prop_name];
+        }
+    }
+    return acceptor;
+};
 var playlists_index = {};
-var playlists_list = [];
-var artists_list = [];
 var collected_data = {
-    artists: artists_list,
-    playlists: playlists_list
+    artists: [],
+    playlists: [],
+    albums: []
 };
 
 var views_storage = {
     playlists: {},
     songs: {},
-    artists: {}
+    artists: {},
+    albums: {}
 };
 
 
@@ -33,6 +40,7 @@ var WrapperManager = function(){
 
     if(window.location.toString().match(/\/music\/([^\/\?]+)/)){
         title = document.querySelector('meta[property="og:title"]').content;
+        this.title = title;
         try {
             type = document.querySelector('meta[property="og:type"]').content;
         } catch (e) {
@@ -57,6 +65,7 @@ WrapperManager.prototype.registred_wrappers = {};
 **/
 var playlists_counter = 1;
 var artists_counter = 1;
+var albums_counter = 1;
 WrapperManager.prototype.wrapMusicElements = function(root_node){
 //    if(window.location.toString().match(/\/event\//))
 //        return
@@ -93,7 +102,7 @@ WrapperManager.prototype.wrapMusicElements = function(root_node){
             }
         }
     }
-    console.log(playlists_list, views_storage.songs);
+    console.log(collected_data, views_storage);
 };
 
 WrapperManager.prototype.registerWrapper = function(css_expr, wrapper){
@@ -183,17 +192,23 @@ MusicDomElement.prototype.injectSearch = function(){
                 }
                 var comment_node = document.createComment('');
                 if( this.insertLink(childs[i], track, comment_node) != false){
-                    if( track_info[1] ){
+                    var item;
+                    if ( track_info[1] ){
                         childs[i].setAttribute('data-index-number', counter);
                         counter += 1;
 
                         playlist_array.push( track_info );
 
                         dom_index[ playlist_array.length - 1 ] = comment_node;
+                    } else if (track_info[0] && track_info[2]) {
+                        item = [albums_counter++, track_info[0], track_info[2]];
+                        collected_data.albums.push(item);
+                        views_storage.albums[item[0]] = comment_node;
+                        debugger;
                     } else if (track_info[0]) {
-                        var item = [artists_counter++, track_info[0]];
+                        item = [artists_counter++, track_info[0]];
 
-                        artists_list.push(item);
+                        collected_data.artists.push(item);
                         views_storage.artists[item[0]] = comment_node;
                     }
                 }
@@ -204,7 +219,7 @@ MusicDomElement.prototype.injectSearch = function(){
     }
 
     if (playlist_array.length) {
-        playlists_list.push(playlist);
+        collected_data.playlists.push(playlist);
 
         var playlist_num = playlist[0];
 
@@ -222,6 +237,11 @@ MusicDomElement.prototype.generateLink = function(track){
 };
 var prependNode = function(target, elem) {
     target.insertBefore( elem, target.firstChild );
+};
+var insertBefore = function(target, elem) {
+    if (target.parentNode) {
+        target.parentNode.insertBefore( elem, target);
+    }
 };
 
 var afterNode = function(target) {};
@@ -247,6 +267,8 @@ MusicDomElement.prototype.generateAudioLink = function(track){
 
     Most popular block. User/Artist charts.
 **/
+
+
 var TrackList = function(element, artist){
     this.element = element;
     this.artist = artist;
@@ -298,7 +320,12 @@ TrackList.prototype.insertLink = function(row, track, cmtnode) {
         emptyNode(td_playbtn);
         td_playbtn.appendChild(cmtnode);
     } else {
-        return false;
+        var first_link = row.querySelector('.subjectCell a');
+        if (first_link) {
+            insertBefore(first_link, cmtnode);
+        } else {
+            return false;
+        }
     }
 };
 manager.registerWrapper('table.tracklist, table.chart', TrackList);
@@ -623,6 +650,48 @@ manager.registerWrapper('ul.artistsWithInfo', ArtistsWithInfo)
 
 
 
+var SchemaAlbum = function(element, artist, page_item_meta_title) {
+    this.element = element;
+    this.artist = artist;
+    this.page_item_meta_title = page_item_meta_title;
+};
+SchemaAlbum.prototype = new MusicDomElement();
+cloneObj(SchemaAlbum.prototype, {
+    getTrack: function(source_node) {
+       // debugger;
+    },
+    insertLink: function(el, track_info, cmtnode) {
+        //debugger;
+    },
+    injectSearch: function() {
+
+        var album_name_node = this.element.querySelector('[itemprop=name]');
+        var album_url_node = this.element.querySelector('[itemprop=url]');
+
+
+        var album_name = album_name_node.getAttribute('content');
+        var url_parts = album_url_node.href.replace(/\/$/,'').split('/');
+        var artist_name = url_parts && url_parts[url_parts.length - 2];
+        artist_name = artist_name && artist_name.replace('+', ' ');
+
+
+        if (album_name && artist_name) {
+            var comment_node = document.createComment('');
+
+            this.element.className += ' fremup_item_preview';
+            this.element.appendChild(comment_node);
+
+            var item = [albums_counter++, artist_name, album_name];
+            collected_data.albums.push(item);
+            views_storage.albums[item[0]] = comment_node;
+        }               
+                        
+    }
+});
+manager.registerWrapper('[itemscope][itemtype="http://schema.org/MusicAlbum"]', SchemaAlbum);
+
+
+
 /**
     Class AlbumsMedium < MusicDomElement
 
@@ -655,7 +724,7 @@ AlbumsMedium.prototype.insertLink = function(li, track, cmtnode){
     var elm = li.querySelector('div.resContainer')
 
     var playbtn = elm.querySelector('.playbutton')    
-    if(playbtn){
+    if (playbtn){
         elm.removeChild(playbtn)
     }
 };

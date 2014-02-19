@@ -9,9 +9,6 @@
 	position: relative;
 	top:2px;
 }
-.play_button.fmppb {
-	display: inline-block;
-}
 .play_button:hover {
 	border-color:#ccc;
 }

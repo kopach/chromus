@@ -798,14 +798,18 @@ BrowseMap.Model.extendTo(ArtCard, {
 		artl.showOnMap();
 		return artl;
 	},
-	showAlbum: function(params, start_song) {
-
-		if (!params.album_artist){
-			params.album_artist = this.artist;
+	getLFMAlbum: function(album_name, album_artist) {
+		if (!album_artist){
+			album_artist = this.artist;
 		}
 
-		var pl = this.getSPI('albums_lfm', true).getSPI(params.album_artist + ',' + params.album_name, true);
+		var pl = this.getSPI('albums_lfm', true).getSPI(album_artist + ',' + album_name, true);
+		return pl;
+	},
+	showAlbum: function(params, start_song) {
+
 		
+		var pl = this.getLFMAlbum(params.album_name, params.album_artist);
 		//var pl = this.getAlbum(params, start_song);
 		pl.showOnMap();
 		return pl;

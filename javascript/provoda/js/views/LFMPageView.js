@@ -95,25 +95,37 @@ provoda.View.extendTo(SongView, {
 	}
 });
 
-var ContextArtistView = function() {};
-provoda.View.extendTo(ContextArtistView, {
+var ContextItemView = function() {};
+provoda.View.extendTo(ContextItemView, {
 	createBase: function() {
 		this.c = getSample(context_artist_sample, this.PvTemplate);
 		this.createTemplate();
-		var outside_comment_node = spv.getTargetField(this.root_view.dom_storage.artists, [this.undetailed_states.context_id]);
+		var outside_comment_node = spv.getTargetField(this.getStorage(), [this.undetailed_states.context_id]);
 		$(outside_comment_node).after(this.c);
-
-
-
 	},
 	tpl_events: {
 		wantPlaying: function() {
 			this.RPCLegacy('wantPlaying');
-
 		}
+	},
+	getStorage: function() {
+
 	}
 });
 
+var ContextArtistView = function() {};
+ContextItemView.extendTo(ContextArtistView, {
+	getStorage: function() {
+		return this.root_view.dom_storage.artists;
+	}
+});
+
+var ContextAlbumsView = function() {};
+ContextItemView.extendTo(ContextAlbumsView, {
+	getStorage: function() {
+		return this.root_view.dom_storage.albums;
+	}
+});
 
 var PlaylistView = function() {};
 provoda.View.extendTo(PlaylistView, {
@@ -146,11 +158,13 @@ provoda.View.extendTo(LFMPageView, {
 	},
 	children_views: {
 		main_list: PlaylistView,
-		artists_list: ContextArtistView
+		artists_list: ContextArtistView,
+		albums_list: ContextAlbumsView
 	},
 
 	'collch-main_list': true,
-	'collch-artists_list': true
+	'collch-artists_list': true,
+	'collch-albums_list': true
 	
 });
 
