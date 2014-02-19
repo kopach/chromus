@@ -225,7 +225,7 @@ AppModelBase.extendTo(AppModel, {
 		if (w_song){
 			addToArray(acting, w_song);
 		}
-		var imporant_models = [ this.p && this.p.waiting_next, this.getNesting('current_mp_md'), this.p && this.p.c_song ];
+		var imporant_models = [ this.p && this.p.waiting_playlist && this.p.waiting_playlist.waiting_next, this.p && this.p.wanted_song, this.getNesting('current_mp_md'), this.p && this.p.c_song ];
 		for (i = 0; i < imporant_models.length; i++) {
 			var cur = imporant_models[i];
 			if (cur){
