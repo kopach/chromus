@@ -13,9 +13,16 @@
 
 var playlists_index = {};
 var playlists_list = [];
+var artists_list = [];
+var collected_data = {
+    artists: artists_list,
+    playlists: playlists_list
+};
+
 var views_storage = {
     playlists: {},
-    songs: {}
+    songs: {},
+    artists: {}
 };
 
 
@@ -49,6 +56,7 @@ WrapperManager.prototype.registred_wrappers = {};
     Uses all registered wrappers to handle all the possible elements on the page.
 **/
 var playlists_counter = 1;
+var artists_counter = 1;
 WrapperManager.prototype.wrapMusicElements = function(root_node){
 //    if(window.location.toString().match(/\/event\//))
 //        return
@@ -67,27 +75,16 @@ WrapperManager.prototype.wrapMusicElements = function(root_node){
 
             if(!cur.has_files_search){
 
-                var playlist = [playlists_counter++, []];
-                var dom_index = {};
+
                 try{
-                    new wrapper(elements[i], artist).injectSearch(playlist[1], dom_index);
+                    new wrapper(elements[i], artist).injectSearch();
                     
                     this.container_count += 1;
                 } catch(e){
                     console.warn(elements[i]);
                     console.warn(e.message);
                 }
-                if (playlist[1].length) {
-                    playlists_list.push(playlist);
-
-                    var playlist_num = playlist[0];
-
-                    for (var jj = 0; jj < playlist[1].length; jj++) {
-                        playlist[1][jj].playlist_num = playlist_num;
-                    }
-
-                    views_storage.songs[playlist_num] = dom_index;
-                }
+                
 
 
 
@@ -142,12 +139,15 @@ MusicDomElement.prototype.insertLink = function(el){console.error('Abstract func
 
     Finds all parent blocks matching a pattern, and injects play and search links into all matching childs.
 **/
-MusicDomElement.prototype.injectSearch = function(playlist_array, dom_index){
-    var track;
+MusicDomElement.prototype.injectSearch = function(){
 
     if(!this.element) {
         return false;
     }
+    var playlist_array = [];
+    var artists_array = [];
+    var playlist = [playlists_counter++, playlist_array];
+    var dom_index = {};
 
     var childs = this.element.querySelectorAll(this.child_items_pattern);
     
@@ -176,11 +176,13 @@ MusicDomElement.prototype.injectSearch = function(playlist_array, dom_index){
                     if(track_info[2]){
                         childs[i].className += " ex_album";
                         childs[i].setAttribute('data-album', track_info[2]);
-                    } else
+                    } else {
                         childs[i].className += " ex_artist";
-                }                                         
+                    }
+                        
+                }
                 var comment_node = document.createComment('');
-                if(this.insertLink(childs[i], track, comment_node) != false){
+                if( this.insertLink(childs[i], track, comment_node) != false){
                     if( track_info[1] ){
                         childs[i].setAttribute('data-index-number', counter);
                         counter += 1;
@@ -188,6 +190,11 @@ MusicDomElement.prototype.injectSearch = function(playlist_array, dom_index){
                         playlist_array.push( track_info );
 
                         dom_index[ playlist_array.length - 1 ] = comment_node;
+                    } else if (track_info[0]) {
+                        var item = [artists_counter++, track_info[0]];
+
+                        artists_list.push(item);
+                        views_storage.artists[item[0]] = comment_node;
                     }
                 }
             }
@@ -195,7 +202,19 @@ MusicDomElement.prototype.injectSearch = function(playlist_array, dom_index){
             console.error("Can't wrap row:", e.message, childs[i]);
         }
     }
-}
+
+    if (playlist_array.length) {
+        playlists_list.push(playlist);
+
+        var playlist_num = playlist[0];
+
+        for (var jj = 0; jj < playlist_array.length; jj++) {
+            playlist_array[jj].playlist_num = playlist_num;
+        }
+
+        views_storage.songs[playlist_num] = dom_index;
+    }
+};
 
 MusicDomElement.prototype.generateLink = function(track){
     //создавал внешню ссылку на поиск во вконтакте

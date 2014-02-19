@@ -76,7 +76,7 @@ var initPort = function() {
 	if (parsed) {
 		current_port.postMessage({
 			action: 'init_sender',
-			message: window.playlists_list
+			message: window.collected_data
 		});
 	}
 
@@ -114,7 +114,7 @@ spv.domReady(document, function() {
 
 		var reportChanges = function() {
 			if (root_view) {
-				root_view.mpx.RPCLegacy('updateLFMPlaylists', window.playlists_list);
+				root_view.mpx.RPCLegacy('updateLFMPData', window.collected_data);
 			}
 		};
 
@@ -164,7 +164,7 @@ spv.domReady(document, function() {
 	parsed = true;
 	current_port.postMessage({
 		action: 'init_sender',
-		message: window.playlists_list
+		message: window.collected_data
 	});
 
 

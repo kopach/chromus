@@ -10,6 +10,18 @@ var morph_map = new spv.MorphMap({
 	}
 });
 
+var ContextArtist = function() {};
+provoda.HModel.extendTo(ContextArtist, {
+	init: function(opts, data) {
+		this._super.apply(this, arguments);
+		this.artist = this.app.getArtcard(data.artist_name);
+		this.updateState('context_id', data.context_id);
+		return this;
+	},
+	wantPlaying: function() {
+		this.artist.getTopTracks().wantListPlaying();
+	}
+});
 
 var LFMPagePlalists = function() {};
 BrowseMap.Model.extendTo(LFMPagePlalists, {
@@ -17,11 +29,15 @@ BrowseMap.Model.extendTo(LFMPagePlalists, {
 	init: function(opts, data) {
 		this._super(opts);
 		this.playlists_index = {};
+		this.artists_index = {};
 
-
-		this.updateLFMPlaylists(data);
+		this.updateLFMPData(data);
 
 		
+	},
+	updateLFMPData: function(data) {
+		this.updateLFMArtists(data.artists);
+		this.updateLFMPlaylists(data.playlists);
 	},
 	updateLFMPlaylists: function(data) {
 		var list = this.getNesting('main_list') || [];
@@ -34,6 +50,27 @@ BrowseMap.Model.extendTo(LFMPagePlalists, {
 			//list[i].updateState('item_num', i);
 		}
 		this.updateNesting('main_list', list);
+	},
+	updateLFMArtists: function(list) {
+		var models = [];
+		for (var i = 0; i < list.length; i++) {
+			var id = list[i][0];
+			if ( !this.artists_index[id] ) {
+				var context_artist = new ContextArtist();
+				context_artist.init({
+					app: this.app,
+					map_parent: this
+				}, {artist_name: list[i][1], context_id: id});
+
+				this.artists_index[id] = context_artist;
+
+
+			}
+			models.push( this.artists_index[id] );
+			//su.getArtcard("Jai Paul").getTopTracks().wantListPlaying()
+		}
+		this.updateNesting('artists_list', models);
+
 	}
 });
 
