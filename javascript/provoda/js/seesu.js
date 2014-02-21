@@ -603,6 +603,22 @@ AppModel.extendTo(SeesuApp, {
 
 		//Notification.requestPermission( function(result) { currentPermission = result  } );
 
+		var showSongNotification = function(title, body, icon) {
+			var notification = new window.Notification(title, {
+				tag: 'song',
+				body: body,
+				icon: icon
+			});
+			if (notification && notification.show) {
+				notification.show();
+
+				setTimeout(function(){
+					notification.cancel();
+				}, 6000);
+			}
+			
+		};
+
 		if (window.Notification && window.Notification.permission =='granted') {
 			this.start_page.on('child_change-current_song', function(e) {
 				if (e.value) {
@@ -612,17 +628,16 @@ AppModel.extendTo(SeesuApp, {
 					//e.value.state()
 
 					var mopla = e.value.mopla;
-					var notification = new window.Notification(e.value.state('track'), {
-						tag: 'song',
-						body: e.value.state('artist') + '\n' + mopla.state('source_name') + ', ' + mopla.state('title'),
-						icon: image_url
-					});
-					notification.show();
+					
 
-					setTimeout(function(){
-						notification.cancel();
-					}, 6000);
-
+					try {
+						showSongNotification(
+							e.value.state('track'),
+							e.value.state('artist') + '\n' + mopla.state('source_name') + ', ' + mopla.state('title'),
+							image_url
+						);
+					} catch (error) {}
+					
 					/*var notification = window.webkitNotifications.createNotification( image_url || '' , e.value.state('track'), e.value.state('artist'));
 					notification.show();
 					*/

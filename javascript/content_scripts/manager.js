@@ -171,22 +171,22 @@ MusicDomElement.prototype.injectSearch = function(){
                 
     
             if(track_info[0]){
-                childs[i].className += " ex_container";
-                childs[i].setAttribute('data-artist', track_info[0]);
+                //childs[i].className += " ex_container";
+                //childs[i].setAttribute('data-artist', track_info[0]);
 
                 var track;
 
                 if(track_info[1]){
-                    childs[i].setAttribute('data-song', track_info[1]);
+                    //childs[i].setAttribute('data-song', track_info[1]);
                     track = track_info.join(' - ');
                 } else {
                     track = track_info[0];
 
                     if(track_info[2]){
-                        childs[i].className += " ex_album";
-                        childs[i].setAttribute('data-album', track_info[2]);
+                        //childs[i].className += " ex_album";
+                        //childs[i].setAttribute('data-album', track_info[2]);
                     } else {
-                        childs[i].className += " ex_artist";
+                        //childs[i].className += " ex_artist";
                     }
                         
                 }
@@ -204,7 +204,7 @@ MusicDomElement.prototype.injectSearch = function(){
                         item = [albums_counter++, track_info[0], track_info[2]];
                         collected_data.albums.push(item);
                         views_storage.albums[item[0]] = comment_node;
-                        debugger;
+                        //debugger;
                     } else if (track_info[0]) {
                         item = [artists_counter++, track_info[0]];
 
