@@ -610,10 +610,22 @@ AppModel.extendTo(SeesuApp, {
 				icon: icon
 			});
 			if (notification && notification.show) {
+
 				notification.show();
 
+				
+			}
+			if (notification) {
 				setTimeout(function(){
-					notification.cancel();
+					
+					if (notification.cancel) {
+						notification.cancel();
+					}
+					if (notification.close) {
+						notification.close();
+					}
+					
+					
 				}, 6000);
 			}
 			
