@@ -86,7 +86,7 @@ VkRawSearch.prototype = {
 			_this = this,
 			query = msq.q ? msq.q: ((msq.artist || '') + (msq.track ?  (' - ' + msq.track) : ''));
 
-		query = query.replace(/\'/g, '').replace(/\//g, ' ');
+		//query = query.replace(/\'/g, '').replace(/\//g, ' ');
 		opts = opts || {};
 
 		var limit_value =  msq.limit || 30;
