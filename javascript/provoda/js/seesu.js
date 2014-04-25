@@ -385,6 +385,7 @@ AppModel.extendTo(SeesuApp, {
 
 		}, 1000 * 60 * 20);
 		setInterval(function(){
+			return;
 			var rootvs = _this.mpx.getViews('root');
 			if (rootvs && rootvs.length){
 				_this.updateLVTime();
@@ -392,8 +393,9 @@ AppModel.extendTo(SeesuApp, {
 		}, 1000 * 60 * 2);
 
 		this.popular_artists = ["The Beatles", "Radiohead", "Muse", "Lady Gaga", "Eminem", "Coldplay", "Red Hot Chili Peppers", "Arcade Fire", "Metallica", "Katy Perry", "Linkin Park" ];
-		this.mp3_search = (new Mp3Search({
+		this.mp3_search = (new Mp3Search({app: this}, {
 			vk: 5,
+			'pleer.com': 4,
 			nigma: 1,
 			exfm: 0,
 			soundcloud: -5,
@@ -424,6 +426,7 @@ AppModel.extendTo(SeesuApp, {
 
 		this.p = new PlayerSeesu();
 		this.p.init(this);
+		this.player = this.p;
 		this.app_md = this;
 		this.art_images = new comd.LastFMArtistImagesSelector();
 		this.art_images.init();
@@ -472,12 +475,11 @@ AppModel.extendTo(SeesuApp, {
 			}, this.getContextOptsI())
 			.on('every-url-change', function(nv, ov, replace) {
 				if (replace){
-					//su.trackPage(nv.map_level.resident.page_name);
 				}
 
 			}, {immediately: true})
 			.on('nav-change', function(nv, ov, history_restoring, title_changed){
-				this.trackPage(nv.map_level.resident.page_name);
+				this.trackPage(nv.map_level.resident.model_name);
 			}, this.getContextOptsI())
 			.makeMainLevel();
 
@@ -694,10 +696,11 @@ AppModel.extendTo(SeesuApp, {
 		}
 		return this;
 	},
-	supported_settings: ['lfm-scrobbling', 'dont-rept-pl', 'rept-song', 'volume'],
+	supported_settings: ['lfm-scrobbling', 'dont-rept-pl', 'rept-song', 'volume', 'files_sources'],
 	letAppKnowSetting: function(name, value){
 		this.settings[name] = value;
-		this.trigger('settings.' + name, value);
+		this.updateState('settings-' + name, value);
+		//this.trigger('settings-' + name, value);
 	},
 	storeSetting: function(name, value){
 		clearTimeout(this.settings_timers[name]);
@@ -815,59 +818,8 @@ AppModel.extendTo(SeesuApp, {
 		return sp;
 	},
 	routePathByModels: function(pth_string) {
-
-	/*
-	catalog
-	users
-	tags
-	*/
-
-
-	/*
-	#/catalog/The+Killers/_/Try me
-	#?q=be/tags/beautiful
-	#/catalog/Varios+Artist/Eternal+Sunshine+of+the+spotless+mind/Phone+Call
-	#/catalog/Varios+Artist/Eternal+Sunshine+of+the+spotless+mind/Beastie+boys/Phone+Call
-	#/catalog/The+Killers/+similar/Beastie+boys/Phone+Call
-	#/recommendations/Beastie+boys/Phone+Call
-	#/loved/Beastie+boys/Phone+Call
-	#/radio/artist/The+Killers/similarartist/Bestie+Boys/Intergalactic
-	#?q=be/directsearch/vk/345345
-	'artists by loved'
-	#/ds/vk/25325_2344446
-	http://www.lastfm.ru/music/65daysofstatic/+similar
-	*/
-		var pth = pth_string.replace(/^\//, '').replace(/([^\/])\+/g, '$1 ')/*.replace(/^\//,'')*/.split('/');
-
-		var cur_md = this.start_page;
-		var tree_parts_group = null;
-		for (var i = 0; i < pth.length; i++) {
-			if (cur_md.sub_pages_routes && cur_md.sub_pages_routes[pth[i]]){
-				if (!tree_parts_group){
-					tree_parts_group = [];
-				}
-				tree_parts_group.push(pth[i]);
-				continue;
-			} else {
-				var path_full_string;
-				if (tree_parts_group){
-					path_full_string = [].concat(tree_parts_group, [pth[i]]).join('/');
-				} else {
-					path_full_string = pth[i];
-				}
-				tree_parts_group = null;
-				var md = cur_md.findSPbyURLPart(path_full_string);
-				if (md){
-					cur_md = md;
-				} else {
-					break;
-				}
-
-			}
-
-
-		}
-		return cur_md;
+		return BrowseMap.routePathByModels(this.start_page, pth_string);
+	
 	},
 	getPlaylists: function(query) {
 		var r = [],i;
@@ -1018,8 +970,6 @@ AppModel.extendTo(SeesuApp, {
 			track: track_name,
 			from:'lastfm',
 			media_type: 'mp3',
-			getSongFileModel: Mp3Search.getSongFileModel,
-			models: {}
 		};
 	},
 	checkUpdates: function(){
@@ -1054,6 +1004,9 @@ AppModel.extendTo(SeesuApp, {
 			console.log('lv: ' +  cver + ' reg link: ' + (_this.vkReferer = r.vk_referer));
 
 		});
+	},
+	handleNetworkSideData: function(source_name, ns, data) {
+		console.log(source_name, ns, data);
 	}
 
 });

@@ -164,7 +164,8 @@ AppModelBase.extendTo(AppModel, {
 			return md;
 		},
 		show_tag: function(tag){
-			var md = this.start_page.getSPI('tags/' + tag, true);
+			var md = this.routePathByModels('tags/' + tag );
+			
 			md.showOnMap();
 			return md;
 		},
@@ -192,10 +193,6 @@ AppModelBase.extendTo(AppModel, {
 			return false;
 		}
 		return this.start_page.getSPI('tracks/' + this.joinCommaParts([artist_name, track_name]), true);
-	},
-	getLFMAlbum: function(artist_name, album_name) {
-		var artcard = this.getArtcard(artist_name);
-		return artcard.getLFMAlbum(album_name);
 	},
 	getArtcard: function(artist_name) {
 

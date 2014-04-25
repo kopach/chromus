@@ -23,31 +23,41 @@ AppBaseView.extendTo(AppView, {
 		}*/
 		
 	},
+	'collch-current_mp_md': function(name, value) {
+		this.updateState('current_mp_md', value._provoda_id);
+	},
 	/*
 	'collch-navigation': {
 		place: 'nav.daddy',
 		space: 'nav',
 		by_model_name: true
 	},*/
-	'collch-current_mp_md': function(name, value) {
-		this.updateState('current_mp_md', value._provoda_id);
-	},
+	
 	'collch-map_slice': false,
 	'stch-current_mp_md': false,
 	'spec-vget-song': function(md) {
 		var playlist = md.getParentMapModel();
 		var playlist_mpx = this.getStoredMpx(playlist);
-		var playlist_view = this.getChildView(playlist_mpx, 'all-sufficient-details');
-		return playlist_view && playlist_view.getChildView(this.getStoredMpx(md));
+
+		var playlist_view = this.findMpxViewInChildren(playlist_mpx, 'all-sufficient-details');
+		return playlist_view && playlist_view.findMpxViewInChildren(this.getStoredMpx(md));
 	},
-	'collch-$spec-song': function(name, md) {
+	'collch-$spec-song': function(nesname, md) {
 		var playlist = md.getParentMapModel();
 
 		var playlist_mpx = this.getStoredMpx(playlist);
 
-		var view = this.getChildView(playlist_mpx, 'all-sufficient-details');
+		var location_id = provoda.$v.getViewLocationId(this, nesname, 'all-sufficient-details');
+
+
+
+		var view = playlist_mpx.getView(location_id);
 		if (!view){
-			view = this.getFreeChildView({name: playlist.model_name, space: 'all-sufficient-details'}, playlist);
+			view = this.getFreeChildView({
+				by_model_name: true,
+				nesting_name: nesname,
+				nesting_space: 'all-sufficient-details'
+			}, playlist);
 			var place = AppBaseView.viewOnLevelP.call(this, {map_level_num: md.map_level_num}, view);
 			place.append(view.getA());
 			this.requestAll();
@@ -55,7 +65,8 @@ AppBaseView.extendTo(AppView, {
 	},
 	'collch-$spec-playlist': {
 		place: AppBaseView.viewOnLevelP,
-		opts: {overview: true}
+		opts: {overview: true},
+		by_model_name: true
 	},
 	tickCheckFocus: function() {
 		if (this.isAlive()){
@@ -64,7 +75,11 @@ AppBaseView.extendTo(AppView, {
 		}
 	},
 /*	'collch-start_page': function(name, md) {
-		var view = this.getFreeChildView({name: name, space: 'main'}, md);
+		var view = this.getFreeChildView({
+			by_model_name: true,
+			nesting_name: nesname,
+			nesting_space: 'main'
+		}, md);
 		if (view){
 			var _this = this;
 
@@ -252,7 +267,7 @@ AppBaseView.extendTo(AppView, {
 			}
 		}
 		var md = this.getNesting('current_mp_md');
-		var view = md && this.getStoredMpx(md).getRooConPresentation(true);
+		var view = md && this.getStoredMpx(md).getRooConPresentation(this, true);
 		if (view){
 			view.setPrio();
 		}
@@ -347,6 +362,11 @@ AppBaseView.extendTo(AppView, {
 			return this.els.ui_samples.children('.scrobbling-switches');
 		}
 	},
+	handleSearchForm: function(form_node) {
+		var tpl = this.createTemplate(form_node);
+		this.tpls.push(tpl);
+
+	},
 	handleStartScreen: function(start_screen) {
 		var st_scr_scrl_con = start_screen.parent();
 		var start_page_wrap = st_scr_scrl_con.parent();
@@ -428,7 +448,7 @@ AppBaseView.extendTo(AppView, {
 				};
 				var getCurrentNode = function() {
 					var current_md = _this.getNesting('current_mp_md');
-					return current_md && _this.getStoredMpx(current_md).getRooConPresentation(true, true).getC();
+					return current_md && _this.getStoredMpx(current_md).getRooConPresentation(this, true, true).getC();
 				};
 
 				var readySteadyResize = function(){
@@ -630,8 +650,8 @@ AppBaseView.extendTo(AppView, {
 			//_this.els.search_label = _this.els.search_form.find('#search-p').find('.lbl');
 
 			var justhead = _this.els.navs;
-			var daddy = justhead.children('.daddy');
-			var np_button = daddy.children('.np-button');
+			var daddy = justhead.find('.daddy');
+			var np_button = justhead.find('.np-button');
 			_this.nav = {
 				justhead: justhead,
 				daddy: daddy,
@@ -678,6 +698,13 @@ AppBaseView.extendTo(AppView, {
 
 			var kd_callback = function(e){
 				if (d.activeElement && d.activeElement.nodeName == 'BUTTON'){return;}
+				if (d.activeElement && d.activeElement.nodeName == 'INPUT'){
+					if (e.keyCode == 27) {
+						d.activeElement.blur();
+						return;
+					}
+				}
+
 				_this.arrowsKeysNav(e);
 			};
 
@@ -727,7 +754,7 @@ AppBaseView.extendTo(AppView, {
 		if (cwp){
 			var cur_md_md = this.getNesting('current_mp_md');
 			var parent_md = cur_md_md.getParentMapModel();
-			if (parent_md && cwp.view.getAncestorByRooViCon('main') == this.getStoredMpx(parent_md).getRooConPresentation()){
+			if (parent_md && cwp.view.getAncestorByRooViCon('main') == this.getStoredMpx(parent_md).getRooConPresentation(this)){
 				this.scrollTo($(cwp.node), {
 					node: this.getLevByNum(parent_md.map_level_num).scroll_con
 				}, {vp_limit: 0.6, animate: 117});
@@ -741,7 +768,7 @@ AppBaseView.extendTo(AppView, {
 		}
 		if (nst) {
 			$(nst.node).addClass('surf_nav');
-			//if (nst.view.getRooConPresentation() ==)
+			//if (nst.view.getRooConPresentation(this) ==)
 
 			this.scrollToWP(nst);
 

@@ -4,6 +4,7 @@ function(BrowseMap, app_serv, spv, SongsList, ArtCard, provoda) {
 
 
 var morph_map = new spv.MorphMap({
+	is_array: true,
 	props_map: {
 		artist: '0',
 		track: '1'
@@ -109,7 +110,6 @@ var app_env = app_serv.app_env;
 var localize = app_serv.localize;
 BrowseMap.Model.extendTo(StartPage, {
 	model_name: 'start_page',
-	page_name: 'start page',
 	zero_map_level: true,
 	createLFMPagePlaylist: function( playlist_info ) {
 		var playlist_items = playlist_info[1];
@@ -120,7 +120,7 @@ BrowseMap.Model.extendTo(StartPage, {
 			data: {name: playlist_title}
 		});
 		playlist.updateState('item_num', playlist_info[0]);
-		playlist.tickRequestedData(false, morph_map(playlist_items));
+		playlist.insertDataAsSubitems(this.main_list_name, morph_map(playlist_items));
 
 		playlist.raw_playlist_data = playlist_items;
 
@@ -147,7 +147,7 @@ BrowseMap.Model.extendTo(StartPage, {
 
 	},
 	init: function(opts){
-		this._super(opts);
+		this._super.apply(this, arguments);
 		this.su = opts.app;
 		this.updateState('needs_search_from', true);
 		this.updateState('nav_title', 'Seesu start page');
@@ -160,8 +160,6 @@ BrowseMap.Model.extendTo(StartPage, {
 			};
 		}));
 
-//		this.updateNesting('pstuff', this.getSPI('users/me', true));
-//		this.updateNesting('muco', this.getSPI('conductor', true));
 
 		this.full_list = [];
 		
@@ -226,16 +224,14 @@ tickRequestedData(false, []);
 			su.trackEvent('Navigation', 'hint artist');
 		}
 	},
-	subPageInitWrap: function(Constr, full_name, params) {
+	subPageInitWrap: function(Constr, full_name, data) {
 		var instance = new Constr();
-			instance.init_opts = [{
-				app: this.app,
-				map_parent: this,
-				nav_opts: {
-					url_part: '/' + full_name
-				}
-			}, params];
-		return instance;
+		if (!data) {
+			data = {};
+		}
+		data['url_part'] = '/' + full_name;
+		return [instance, data];
+
 	},
 	sub_pages_routes: {
 		'catalog': function(name) {
@@ -245,7 +241,8 @@ tickRequestedData(false, []);
 				artist: name
 			});
 		},
-		/*'tracks': function(complex_string, raw_str) {
+		/*
+		'tracks': function(complex_string, raw_str) {
 			var full_name = 'tracks/' + raw_str;
 			var parts = this.app.getCommaParts(raw_str);
 			if (!parts[1] || !parts[0]){
@@ -258,65 +255,78 @@ tickRequestedData(false, []);
 			}
 		
 		},
-		'tags': function(name) {
-			var full_name = 'tags/' + name;
-			return this.subPageInitWrap(TagPage, full_name, {
-				urp_name: name,
-				tag_name: name
-			});
-		},
 		'users': function(name) {
 			var full_name = 'users/' + name;
 			if (name == 'me'){
-				return this.subPageInitWrap(UserCard, full_name, {urp_name: name});
-			} else if (name.indexOf('lfm:') === 0){
-				return this.subPageInitWrap(UserCard.LfmUserCard, full_name, {urp_name: name});
-			} else if (name.indexOf('vk:') === 0){
-				return this.subPageInitWrap(UserCard.VkUserCard, full_name, {urp_name: name});
+				return this.subPageInitWrap(UserCard, full_name);
+			} else {
+				var name_spaced = name.split(':');
+				var namespace = name_spaced[0];
+				if (namespace == 'lfm') {
+					return this.subPageInitWrap(UserCard.LfmUserCard, full_name, {userid: name_spaced[1]});
+				} else if (namespace == 'vk') {
+					return this.subPageInitWrap(UserCard.VkUserCard, full_name, {userid: name_spaced[1]});
+				}
 			}
 		},
 		'blogs': function(blog_url) {
 			var full_name = 'blogs/' +  this.app.encodeURLPart(blog_url);
 			return this.subPageInitWrap(MusicBlog, full_name, {
-				urp_name: blog_url,
 				blog_url: blog_url
 			});
 		},
 		'cloudcasts': function(mixcloud_urlpiece) {
-			var full_name = 'blogs/' +  this.app.encodeURLPart(mixcloud_urlpiece);
+			var full_name = 'cloudcasts/' +  this.app.encodeURLPart(mixcloud_urlpiece);
 			return this.subPageInitWrap(Cloudcasts, full_name, {
-				urp_name: mixcloud_urlpiece,
 				key: mixcloud_urlpiece
 			});
-		}*/
+		}
+		
+
+
+		*/
 	},
 	sub_pa: {
-	/*	'conductor': {
+	/*	
+		'tags': {
+			title: localize('Pop-tags'),
+			constr: TagsList
+		},
+		'conductor': {
 			title: localize('music-cond'),
 			constr: MusicConductor
-		}*/
+		}
+
+*/
 	},
 	subPager: function(parsed_str, path_string) {
 		var parts = path_string.split('/');
 		var first_part = parts[0];
-		var full_name;
+		var full_name = first_part;
 
 		if (parts[1]){
 			full_name += '/' + parts[1];
 		}
-		if (this.sub_pages[full_name]){
-			return this.sub_pages[full_name];
-		} else {
+		if (!this.sub_pages[full_name]){
 			if (!parts[1]){
 				return;
 			}
 			var handler = this.sub_pages_routes[first_part];
-			var instance = handler && handler.call(this, decodeURIComponent(parts[1]), parts[1]);
+			var instance_data = handler && handler.call(this, decodeURIComponent(parts[1]), parts[1]);
+			var instance;
+			if (instance_data) {
+				if (Array.isArray(instance_data)) {
+					instance = instance_data[0];
+				} else {
+					instance = instance_data;
+				}
+			}
 			if (instance){
 				this.sub_pages[full_name] = instance;
 			}
-			return instance;
+			return instance_data;
 		}
+		return this.sub_pages[full_name];
 	},
 	short_title: 'Last.fm free music player',
 	getTitle: function() {
