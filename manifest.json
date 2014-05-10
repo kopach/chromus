@@ -20,7 +20,8 @@
      "javascript/provoda/js/common-libs/jquery-2.1.0.min.js",
      "javascript/provoda/js/views/LFMPageView.js",
      "javascript/provoda/js/libs/PvTemplate.js",
-
+     "javascript/provoda/js/libs/morph_helpers.js",
+     "javascript/provoda/js/common-libs/md5.min.js",
      "i/icon-untouched-16.png",
      "i/icon-failed-16.png",
      "i/icon-finded-16.png",

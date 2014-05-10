@@ -64,12 +64,11 @@ BrowseMap.Model.extendTo(LFMPagePlalists, {
 					app: this.app,
 					map_parent: this
 				}, {
-					item: this.app.getArtcard(list[i][1]).getTopTracks(),
+					item: this.app.routePathByModels('catalog/' + list[i][1] + '/_' ),
 					context_id: id
 				});
 
 				this.artists_index[id] = context_artist;
-
 
 			}
 			models.push( this.artists_index[id] );
@@ -88,12 +87,12 @@ BrowseMap.Model.extendTo(LFMPagePlalists, {
 					app: this.app,
 					map_parent: this
 				}, {
-					item: this.app.getLFMAlbum(list[i][1], list[i][2]),
+					item: this.app.routePathByModels('catalog/' + list[i][1] + '/albums_lfm/' + list[i][1] + ',' + list[i][2]),
 					context_id: id
 				});
 
 				this.albums_index[id] = context_artist;
-
+				
 
 			}
 			models.push( this.albums_index[id] );

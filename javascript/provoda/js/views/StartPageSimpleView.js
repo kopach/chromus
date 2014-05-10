@@ -190,20 +190,65 @@ SongFileModelUI.extendTo(CurrentSongMoplaView, {
 	}
 });
 
+var FilesSourceTunerView = function(){};
+provoda.View.extendTo(FilesSourceTunerView, {
+	tpl_events: {
+		changeTune: function(e, node){
+			var tune_name = node.name;
+			this.overrideStateSilently(tune_name, node.checked);
+			this.RPCLegacy('changeTune', tune_name, node.checked);
+			
+			//disable_search
+			//wait_before_playing
+			//changeTuneconsole.log(arguments);
+
+		}
+	}
+});
 
 
-var FComplectView = function() {};
+var ComplectPionerView = function(){};
+provoda.View.extendTo(ComplectPionerView, {
+	children_views: {
+		vis_tuner: FilesSourceTunerView
+	}
+});
+
+
+
+
+var mfComplectUI = function() {};
+provoda.View.extendTo(mfComplectUI, {
+	children_views: {
+		//'file-torrent': FileInTorrentUI,
+		'file-http': CurrentSongMoplaView,
+		'pioneer': ComplectPionerView
+	},
+
+	'collch-moplas_list_start': {
+		place: 'tpl.ancs.listc-start',
+		by_model_name: true
+	},
+	'collch-moplas_list_end': {
+		place: 'tpl.ancs.listc-end',
+		by_model_name: true
+	}
+});
+
+
+
+/*var FComplectView = function() {};
 provoda.View.extendTo(FComplectView, {
 	children_views: {
 		moplas_list: CurrentSongMoplaView
 	},
 	'collch-moplas_list': 'tpl.ancs.files_list_con'
-});
+});*/
 
 var MfcorPopupView = function() {};
 provoda.View.extendTo(MfcorPopupView, {
 	children_views: {
-		sorted_completcs: FComplectView
+		sorted_completcs: mfComplectUI
 	},
 	base_tree: {
 		sample_name: 'songs_files'

@@ -429,3 +429,66 @@ body {
 .disabledbutton {
 	color:#888;
 }
+
+.dmca_notice{
+	font-size: 0.8rem;
+	color:#999;
+	display: none;
+	padding: 0.5rem 1rem 1rem;
+	padding-left: 3.2rem;
+	}
+	.want_more_songs .dmca_notice{
+		display: block;
+	}
+.dmca_url{
+	float: right;
+	margin-right: 1rem;
+	display: none;
+	font-size: 0.8rem;
+	}
+	.want_more_songs .dmca_url{
+		display: block;
+	}
+.moplas_source-tuner {
+	background: #535353;
+	border-top: 1px solid #4f4f4f;
+	border-bottom: 1px solid #646464;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+}
+.moplas_source-unavailable {
+	color: #666;
+}
+.moplas_source-icon {
+	background: transparent no-repeat url(../i/icon-gear.svg);
+	height: 1.14rem;
+	width: 1.14rem;
+	display: block;
+	
+	cursor: pointer;
+	border-radius: 0.3rem;
+
+	}
+	.moplas_source-icon:hover {
+		background-color: #666;
+		}
+	.moplas_source-icon:active {
+		background-color: #444;
+		}
+.moplas_source-icon {
+	float: left;
+	margin-right: 0.2rem;
+	position: relative;
+	top: 0.15rem;
+	}
+.moplas-block-shift {
+	padding-left: 3.2rem;
+}
+
+.moplas-list li.overstocked{
+		display: none;
+		}
+	
+.want_more_songs .moplas-list.want-overstocked-songs .overstocked{
+	display: block;
+}
