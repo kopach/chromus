@@ -8,6 +8,9 @@ provoda.addPrototype("SongBase",{
 
 		this._super.apply(this, arguments);
 
+
+		
+
 		this.neighbour_for = null;
 		this.marked_prev_song = null;
 		this.marked_next_song = null;
@@ -20,6 +23,7 @@ provoda.addPrototype("SongBase",{
 		
 		this.mp3_search = opts.app.mp3_search;
 		this.player = opts.app.player;
+		
 		
 		this.uid = ++counter;
 		if (omo.track){
@@ -41,13 +45,30 @@ provoda.addPrototype("SongBase",{
 		//this.updateManyStates(states);
 
 		this.on('requests', this.hndRequestsPrio, this.getContextOptsI());
+		this.states_was_twisted = false;
 
 	},
 	hndRequestsPrio: function() {
 		this.map_parent.checkRequestsPriority();
 		
 	},
+	'stch-needs_states_connecting': function(state) {
+		if (!this.states_was_twisted) {
+
+			if (this.twistStates) {
+				this.twistStates();
+				this.states_was_twisted = true;
+
+			}
+		}
+	},
 	complex_states: {
+		'needs_states_connecting': [
+			['^active_use'],
+			function(state) {
+				return state;
+			}
+		],
 		'file_almost_loaded': [
 			['@every:almost_loaded:mf_cor'],
 			function(state) {
@@ -110,10 +131,10 @@ provoda.addPrototype("SongBase",{
 			}
 		},
 		'has_none_files_to_play': {
-			depends_on: ['search_complete', 'no_track_title', 'mf_cor_has_available_tracks'],
-			fn: function(scomt, ntt, mf_cor_tracks) {
-				if (this.getMFCore() && !mf_cor_tracks){
-					if (this.getMFCore().isSearchAllowed()){
+			depends_on: ['mf_cor', 'search_complete', 'no_track_title', 'mf_cor_has_available_tracks'],
+			fn: function(mf_cor, scomt, ntt, mf_cor_tracks) {
+				if (mf_cor && !mf_cor_tracks){
+					if (mf_cor.isSearchAllowed()){
 						if (scomt){
 							return true;
 						}
@@ -265,9 +286,6 @@ provoda.addPrototype("SongBase",{
 	playPrev: function() {
 		this.map_parent.switchTo(this);
 	},
-	findNeighbours: function(){
-		this.map_parent.findNeighbours(this);
-	},
 	/*
 	downloadLazy: spv.debounce(function(){
 		var song = spv.getTargetField(this.mf_cor.songs(), "0.t.0");
@@ -351,9 +369,6 @@ provoda.addPrototype("SongBase",{
 		return this.state('is_important');
 	},
 	
-	checkNeighboursChanges: function(changed_neighbour, viewing, log) {
-		this.map_parent.checkNeighboursChanges(this, changed_neighbour, viewing, log);
-	},
 	hasNextSong: function(){
 		return !!this.next_song;
 	},

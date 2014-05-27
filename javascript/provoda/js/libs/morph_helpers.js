@@ -1,5 +1,8 @@
 define(['spv'], function(spv) {
 "use strict";
+
+
+
 var getLFMImageId = function(url) {
 	var url_parts = url.split(/\/+/);
 	if (url_parts[1] == 'userserve-ak.last.fm'){
@@ -44,15 +47,20 @@ var getLFMImageWrap = function(array) {
 
 	
 };
+
 return {
 	num: function(value) {
 		return parseFloat(value);
 	},
-	lfm_image: function(value) {
-		return getLFMImageWrap(value);
+	lfm_image: getLFMImageWrap,
+	'seconds': function(value) {
+		return value * 1000;
 	},
 	timestamp: function(value) {
 		return value * 1000;
+	},
+	urlp: function(value) {
+		return '/' + value;
 	}
 };
 });

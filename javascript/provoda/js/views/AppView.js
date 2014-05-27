@@ -417,6 +417,17 @@ AppBaseView.extendTo(AppView, {
 		this.completeDomBuilding();
 		//this.checkChildrenModelsRendering();
 		//this.requestAll();
+
+		var d_click_callback = function(e) {
+			e.preventDefault();
+			app_env.openURL($(this).attr('href'));
+			//seesu.trackEvent('Links', 'just link');
+		};
+
+		$(d).on('click', '.external', d_click_callback);
+		_this.onDie(function() {
+			$(d).off('click', d_click_callback);
+		});
 	},
 	buildAppDOMOLD: function() {
 		var _this = this;
@@ -701,6 +712,7 @@ AppBaseView.extendTo(AppView, {
 				if (d.activeElement && d.activeElement.nodeName == 'INPUT'){
 					if (e.keyCode == 27) {
 						d.activeElement.blur();
+						e.preventDefault();
 						return;
 					}
 				}

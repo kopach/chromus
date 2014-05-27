@@ -74,6 +74,12 @@
                       <li class="">
                           <span class="trackbutton lfm-scrobbling-button" pv-anchor="btrow-lastfm" pv-events="click::switchPart:row-lastfm"></span>
                       </li>
+                      <li class="pl-shuffle-button-wrap">
+                        <a  class="trackbutton pl-shuffle-button" pv-anchor="btrow-pl-shuffle" pv-events="click::switchPart:row-pl-shuffle" pv-type="way-point"></a>
+                      </li>
+                      <li class="rept-song-button-wrap">
+                        <a  class="trackbutton rept-song-button" pv-anchor="btrow-repeat-song" pv-events="click::switchPart:row-repeat-song" pv-type="way-point"></a>
+                      </li>
                     </ul>
                     
                     <div class="volume-control" pv-anchor="volume-control">
@@ -98,7 +104,24 @@
                     <div class="song-row-content_scroll_wrapper">
                       <div class="last-fm-scrobbling hidden" pv-nest="context_parts for_model:row-lastfm" pv-class="last-fm-scrobbling {{!active_view && 'hidden'}}"></div>
                       <div class="love-song hidden" pv-nest="context_parts for_model:row-love" pv-class="love-song {{!active_view && 'hidden'}}"></div>
+                      <div class="simple_row_setting hidden" pv-nest="context_parts for_model:row-repeat-song" pv-class="simple_row_setting {{!active_view && 'hidden'}}">
+                        <label class="song-row-label">
+                          <input type="checkbox" pv-events="click::switchSetting:%checked%" pv-type="way-point" pv-props="checked: {{rept_song}}"/>
+                          <span class="lang localize-rept-song">Repeat playing song</span>
+                        </label>
+                        
+                      </div>
+                      <div class="simple_row_setting hidden" pv-nest="context_parts for_model:row-pl-shuffle" pv-class="simple_row_setting {{!active_view && 'hidden'}}">
+                        <label class="song-row-label">
+                          <input type="checkbox" pv-events="click::switchSetting:%checked%" pv-type="way-point" pv-props="checked: {{pl_shuffle}}"/>
+                          <span class="lang localize-shuffl-list">Shuffled playlist playing</span>
+                        </label>
+                        
+                      </div>
+
+
                     </div>
+                    
                     
 
                     <span class="rc-arrow hidden" pv-anchor="arrow" pv-props="style.left: {{arrow_pos}}" pv-class="rc-arrow {{!active_part && 'hidden'}}">
@@ -236,15 +259,15 @@
 
             pv-nest="pioneer"
             class="files-list-pioneer full_mb_part" 
-            pv-class="files-list-pioneer full_mb_part {{search_progress && 'list_loading'}}">
-            <div class="moplas-block-shift">
+            pv-class="files-list-pioneer full_mb_part ">
+            <div class="moplas-block-shift {{search_progress && 'list_loading'}}">
               <span class="moplas_source-icon" pv-events="click::switchTunerVisibility"></span>
               <a 
                 pv-type="way-point"
                 pv-props="href: {{dmca_url}}" 
                 pv-class="external {{!dmca_url && 'hidden'}} {{dmca_url && 'dmca_url'}}"
                 class="external hidden lang localize-report-abuse"></a>
-              <span pv-text="{{search_name}}" pv-class="{{ search_complete && !has_files && 'moplas_source-unavailable'}}"></span>
+              <span pv-text="{{search_name}}" pv-class="{{ search_complete && !has_files && 'moplas_source-unavailable'}} {{disable_search && 'disabled_search'}}"></span>
             </div>
             
 
@@ -255,7 +278,8 @@
               <div>
                 <label>
                   <input type="checkbox" pv-events="click:changeTune" name="disable_search" pv-props="checked:{{disable_search}}">
-                  Отключить поиск файлов в этом источнике
+                  <span class="lang localize-disable-search"></span>
+                  
                 </label>
               </div>
               <div>
@@ -265,8 +289,8 @@
                     checked: {{wait_before_playing}}
                     disabled: {{disable_search}}
                   ">
-                  <span pv-class="{{disable_search && 'desc'}}">
-                    Дожидаться списка файлов из этого источника до воспроизведения.
+                  <span pv-class="{{disable_search && 'desc'}}" class="lang localize-wait-before-play">
+                    
                   </span>
                   
                 </label>
@@ -278,7 +302,7 @@
 
 
 
-          <ul pv-anchor='listc-start'></ul>
+          <div pv-anchor='listc-start'></div>
           <div class="full_mb_part full_list_switch">
             <a
               class="hidden lang localize-full-list"
@@ -287,7 +311,7 @@
               pv-events="click::toggleOverstocked"
               >full list</a>
           </div>
-          <ul pv-anchor='listc-end'></ul>
+          <div pv-anchor='listc-end'></div>
 
           <div pv-anchor='files_list_con'>
               

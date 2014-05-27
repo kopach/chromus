@@ -83,7 +83,7 @@ provoda.View.extendTo(SongView, {
 	createBase: function() {
 		this.c = getSample(song_sample, this.PvTemplate);
 		this.createTemplate();
-		var outside_comment_node = spv.getTargetField(this.root_view.dom_storage.songs, [this.parent_view.state('item_num'), this.undetailed_states.item_num]);
+		var outside_comment_node = spv.getTargetField(this.root_view.dom_storage.songs, [this.parent_view.state('item_num'), this._lbr.undetailed_states.item_num]);
 		$(outside_comment_node).after(this.c);
 	},
 	tpl_events: {
@@ -100,7 +100,7 @@ provoda.View.extendTo(ContextItemView, {
 	createBase: function() {
 		this.c = getSample(context_artist_sample, this.PvTemplate);
 		this.createTemplate();
-		var outside_comment_node = spv.getTargetField(this.getStorage(), [this.undetailed_states.context_id]);
+		var outside_comment_node = spv.getTargetField(this.getStorage(), [this._lbr.undetailed_states.context_id]);
 		$(outside_comment_node).after(this.c);
 	},
 	tpl_events: {

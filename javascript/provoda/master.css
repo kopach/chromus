@@ -7,6 +7,37 @@ body {
 	font: 14px/1.5 Arial, sans-serif;
 	color:#333;
 }
+a[href]{
+	border-bottom: 1px solid #BBBBBB;
+	color: #646464;
+	text-decoration: none;
+	}
+	a[href]:hover{
+		border-bottom-color: #888888;
+		color: #000000;
+		}
+	a[href]:active{
+		color:#333;
+		}
+a.js-serv{
+	white-space: nowrap;
+	color: hsl(0, 0%, 36%);
+	cursor: pointer;
+	padding: 0.286rem;
+	background: #B3B3B3;
+	border: 0.08rem solid #8A8A8A;
+	border-radius: 0.5rem;
+	}
+	a.js-serv:hover{
+		background-color: #4a4a4a;
+		border-color: #000000;
+		color: #eee;
+		}
+	a.js-serv:active{
+		background-color: #444;
+		border-color:#3a3a3a;
+		}
+
 .hidden {
 	display: none;
 }
@@ -234,6 +265,12 @@ body {
 			.lfm-scrobbling-button {
 				background: transparent url(chrome-extension://__MSG_@@extension_id__/i/icon-lfm.png) no-repeat 50% 50%;
 			}
+			.rept-song-button-wrap .trackbutton{
+				background-image: url(chrome-extension://__MSG_@@extension_id__/i/repeat-icon.png);
+			}
+			.pl-shuffle-button-wrap .trackbutton{
+				background-image: url(chrome-extension://__MSG_@@extension_id__/i/icon-shuffle.png);
+			}
 			.play_prev {
 				border-radius: 8px;
 				background: transparent url(chrome-extension://__MSG_@@extension_id__/i/icon-play_prev-16.png) no-repeat 50% 50%;
@@ -444,23 +481,26 @@ body {
 	float: right;
 	margin-right: 1rem;
 	display: none;
-	font-size: 0.8rem;
+	font-size: 0.7rem;
 	}
 	.want_more_songs .dmca_url{
 		display: block;
 	}
 .moplas_source-tuner {
-	background: #535353;
-	border-top: 1px solid #4f4f4f;
-	border-bottom: 1px solid #646464;
+	background: #CFCDCD;
+	border-top: 1px solid #C2C2C2;
+	border-bottom: 1px solid #FFFFFF;
 	padding-top: 0.5rem;
 	padding-bottom: 0.5rem;
 }
 .moplas_source-unavailable {
 	color: #666;
 }
+.files-list-pioneer .disabled_search {
+	text-decoration: line-through;
+}
 .moplas_source-icon {
-	background: transparent no-repeat url(../i/icon-gear.svg);
+	background: transparent no-repeat url(chrome-extension://__MSG_@@extension_id__/i/icon-gear.svg);
 	height: 1.14rem;
 	width: 1.14rem;
 	display: block;
@@ -482,13 +522,17 @@ body {
 	top: 0.15rem;
 	}
 .moplas-block-shift {
-	padding-left: 3.2rem;
+	padding-left: 1.7rem;
+}
+.moplas-list .full_list_switch {
+	margin: 0.2rem 0;
+	padding-left: 1.7rem;
 }
 
-.moplas-list li.overstocked{
-		display: none;
-		}
-	
+.moplas-list .overstocked{
+	display: none;
+	}
+
 .want_more_songs .moplas-list.want-overstocked-songs .overstocked{
 	display: block;
 }

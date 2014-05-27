@@ -84,19 +84,12 @@ AppModelBase.extendTo(AppModel, {
 	notPlaying: function() {
 		this.updateState('playing', false);
 	},
-	createSonglist: function(map_parent, params, first_song) {
+	createSonglist: function(map_parent, params) {
 		var pl = new SongsList();
 		pl.init({
 			app: this,
 			map_parent: map_parent
-		}, params, first_song);
-		return pl;
-	},
-	preparePlaylist: function(params, first_song){
-		var pl = new SongsList();
-		pl.init({
-			app: this
-		}, params, first_song);
+		}, params);
 		return pl;
 	},
 	keyNav: function(key_name) {
@@ -122,12 +115,10 @@ AppModelBase.extendTo(AppModel, {
 			md.showOnMap();*/
 			return md;
 		},
-		showArtistAlbum: function(params, page_md, start_song){
+		showArtistAlbum: function(params, page_md){
 			var artcard = this.showArtcardPage(params.album_artist, page_md);
-			var pl = artcard.showAlbum(params, start_song);
-			if (start_song) {
-				pl.showTrack(start_song);
-			}
+			var pl = artcard.showAlbum(params);
+
 			return pl;
 		},
 		showNowPlaying: function(no_stat) {
@@ -210,6 +201,16 @@ AppModelBase.extendTo(AppModel, {
 		}
 		this.updateState('search_query', query);
 	},
+	'stch-search_request_freshness': function() {
+		var query = this.state('search_query');
+		if (query) {
+			this.showResultsPage(query);
+		}
+
+	},
+	refreshSearchRequest: function(time) {
+		this.updateState('search_request_freshness', time);
+	},
 	checkActingRequestsPriority: function() {
 		var raw_array = [];
 		var acting = [];
@@ -226,7 +227,7 @@ AppModelBase.extendTo(AppModel, {
 		if (w_song){
 			addToArray(acting, w_song);
 		}
-		var imporant_models = [ this.p && this.p.waiting_playlist && this.p.waiting_playlist.waiting_next, this.p && this.p.wanted_song, this.getNesting('current_mp_md'), this.p && this.p.c_song ];
+		var imporant_models = [ this.p && this.p.waiting_next, this.getNesting('current_mp_md'), this.p && this.p.c_song ];
 		for (i = 0; i < imporant_models.length; i++) {
 			var cur = imporant_models[i];
 			if (cur){

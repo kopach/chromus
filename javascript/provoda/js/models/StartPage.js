@@ -236,7 +236,6 @@ tickRequestedData(false, []);
 		'catalog': function(name) {
 			var full_name = 'catalog/' + name;
 			return this.subPageInitWrap(ArtCard, full_name, {
-				urp_name: name,
 				artist: name
 			});
 		},

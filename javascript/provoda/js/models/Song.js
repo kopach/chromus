@@ -1,6 +1,6 @@
 define(['provoda', 'spv', 'app_serv', 'js/libs/BrowseMap', './MfCor', './song/SongActionsRow', './song/SongBase'],
 function(provoda, spv, app_serv, BrowseMap, MfCor, SongActionsRow, sbase){
-	"use strict";
+"use strict";
 var lfm_share_url_replacers = ['[',']','(',')'];
 lfm_share_url_replacers.forEach(function(el, i) {
 	lfm_share_url_replacers[i] = {
@@ -8,7 +8,9 @@ lfm_share_url_replacers.forEach(function(el, i) {
 		str: window.escape(el)
 	};
 });
-
+var album_placeholder = {
+	url: 'i/album_placeholder.png'
+};
 
 
 	var app_env = app_serv.app_env;
@@ -114,7 +116,10 @@ lfm_share_url_replacers.forEach(function(el, i) {
 				still_init = false;
 			}
 			this.initStates();
-			this.nextTick(this.initHeavyPart);
+			//this.nextTick(this.initHeavyPart);
+		},
+		twistStates: function() {
+			this.initHeavyPart();
 		},
 		'compx-has_full_title':{
 			depends_on: ['artist', 'track'],
@@ -131,9 +136,7 @@ lfm_share_url_replacers.forEach(function(el, i) {
 					arr.push(album_image);
 				} else {
 
-					arr.push({
-						url: 'i/album_placeholder.png'
-					});
+					arr.push(album_placeholder);
 				}
 				if (artist_images) {
 					arr.push.apply(arr, artist_images);
@@ -183,6 +186,17 @@ lfm_share_url_replacers.forEach(function(el, i) {
 		},
 		initHeavyPart: provoda.getOCF('izheavy', function() {
 			var omo = this.omo;
+
+			if (omo.side_file && !omo.side_file.link) {
+				omo.side_file = null;
+			}
+			if (omo.side_file) {
+				this.mp3_search.addFileToInvestg(omo.side_file, omo.side_file);
+				omo.side_file = null;
+			}
+			if (omo.file && !omo.file.link) {
+				omo.file = null;
+			}
 
 			this.mf_cor = new MfCor();
 			this.useMotivator(this.mf_cor, function() {

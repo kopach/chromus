@@ -83,7 +83,6 @@ isohuntTorrentSearch.prototype = {
 			media_type: 'torrent',
 			torrent_link: 'http://isohunt.com/download/' + sitem.guid,
 			query: query,
-			models: {},
 			getSongFileModel: function(mo, player) {
 				return (new SongFileModel.FileInTorrent(this, mo)).setPlayer(player);
 			}
@@ -95,6 +94,7 @@ isohuntTorrentSearch.prototype = {
 var BtdiggTorrentSearch = function(opts) {
 	this.mp3_search = opts.mp3_search;
 	this.cache_ajax = opts.cache_ajax;
+	this.queue = opts.queue;
 };
 
 BtdiggTorrentSearch.prototype = {
