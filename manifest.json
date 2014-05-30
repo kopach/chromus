@@ -28,24 +28,25 @@
      "i/icon-playing-16.png",
      "i/spinner-16.gif"
    ],
-   "content_scripts": [ {
-      "css": [ "css/mp3_player_button.css", "css/style.css", "javascript/provoda/playbutton.css" ],
-      "js": [ 
-        "javascript/content_scripts/manager.js",
-        "javascript/provoda/pv-iframe/loader.js",
-        "javascript/provoda/js/common-libs/require-2.1.10.min.js"
-        
-      ],
-      "matches": [ "http://*.last.fm/*", "http://*.lastfm.ru/*","http://*.lastfm.pt/*",  "http://*.lastfm.de/*", "http://*.lastfm.es/*", "http://*.lastfm.fr/*", "http://*.lastfm.it/*", "http://*.lastfm.jp/*", "http://*.lastfm.pl/*", "http://*.lastfm.com.br/*", "http://*.lastfm.se/*", "http://*.lastfm.com.tr/*"]
-   },
-   {
-     "js": ["javascript/lastfm_auth_callback.js"],
-     "matches": ["http://ya.ru/white*"] 
-   },
-   {
-     "js": ["javascript/jquery.min.js", "javascript/hotkeys.js"],
-     "matches": ["http://*/*", "https://*/*"]
-   }
+   "content_scripts": [ 
+      {
+        "css": [ "css/mp3_player_button.css", "css/style.css", "javascript/provoda/playbutton.css" ],
+        "js": [ 
+          "javascript/content_scripts/manager.js",
+          "javascript/provoda/pv-iframe/loader.js"
+          
+        ],
+        "matches": [ "http://*.last.fm/*", "http://*.lastfm.ru/*","http://*.lastfm.pt/*",  "http://*.lastfm.de/*", "http://*.lastfm.es/*", "http://*.lastfm.fr/*", "http://*.lastfm.it/*", "http://*.lastfm.jp/*", "http://*.lastfm.pl/*", "http://*.lastfm.com.br/*", "http://*.lastfm.se/*", "http://*.lastfm.com.tr/*"]
+      },{
+       "js": ["javascript/lastfm_auth_callback.js"],
+       "matches": ["http://ya.ru/white*"] 
+      },{
+       "js": ["javascript/jquery.min.js", "javascript/hotkeys.js"],
+       "matches": ["http://*/*", "https://*/*"]
+      },{
+      "js": ["javascript/partners/chrome-inject.js"],
+      "matches": ["http://*/*", "https://*/*"]
+      }
    ],
    "background": {
      "page":"background.html"
