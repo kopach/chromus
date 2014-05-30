@@ -637,7 +637,7 @@ var DeathMarker = function() {
 	//helper to find memory leaks; if there is memory leaking DeathMarker will be available in memory heap snapshot;
 };
 
-var setEvLiItems = function(items_list, current_motivator) {
+var setEvLiItems = function(items_list) {
 	var old_value = this.current_motivator;
 	this.current_motivator = this.current_motivator;
 
@@ -650,25 +650,44 @@ var setEvLiItems = function(items_list, current_motivator) {
 		var cur = items_list[i];
 		var oldv = cur.current_motivator;
 		cur.current_motivator = this.current_motivator;
-		this.controls_list[i] = cur.on(this.event_name, this.eventCallback, {
+
+		this.controls_list[i] = cur.evcompanion._addEventHandler(this.event_name, this.event_callback, this, false, false, this.skip_reg, false, false, true);
+		//_addEventHandler: function(namespace, cb, context, immediately, exlusive, skip_reg, soft_reg, once, easy_bind_control){
+
+		/*this.controls_list[i] = cur.on(this.event_name, this.event_callback, {
 			easy_bind_control: true,
-			context: this.event_context,
+			context: this,
 			skip_reg: this.skip_reg
-		});
+		});*/
+	
 		cur.current_motivator = oldv;
 	}
 	this.current_motivator = old_value;
 };
-var ItemsEvents = function(event_name, eventCallback) {
+
+
+
+var ItemsEvents = function(event_name, md, callback) {
 	this.items_list = null;
+	this.md = md;
 	this.controls_list = [];
 	this.event_name = event_name;
-	this.eventCallback = eventCallback;
-	this.skip_reg = null;
-	this.event_context = this;
+	this.callback = callback;
+	this.skip_reg = false;
 	this.current_motivator = null;
 };
 ItemsEvents.prototype = {
+	event_callback: function(e) {
+		var old_value = this.md.current_motivator;
+		this.md.current_motivator = e.target.current_motivator;
+		this.callback.call(this.md, {
+			target: this.md,
+			item: e.target,
+			value: e.value,
+			items: this.items_list
+		});
+		this.md.current_motivator = old_value;
+	},
 	unsubcribeOld: function() {
 		if (this.controls_list.length){
 			for (var i = 0; i < this.controls_list.length; i++) {
@@ -679,46 +698,52 @@ ItemsEvents.prototype = {
 	setItems: setEvLiItems
 };
 
+
 var hasargfn = function(cur) {return cur;};
-var StatesArchiver = function(state_name, opts) {
+var StatesArchiver = function(state_name, result_state_name, md, calculateResult) {
 	this.items_list = null;
 	this.controls_list = [];
 	this.current_motivator = null;
+	this.md = md;
+	this.result_state_name = result_state_name;
 
-	var _this = this;
-	this.checkFunc = function(e) {
-		_this.getItemsValues(e && e.target);
-	};
 	this.state_name = state_name;
 	this.event_name = 'state_change-' + this.state_name;
-	this.eventCallback = this.checkFunc;
 	this.skip_reg = true;
 
-	this.returnResult = opts.returnResult;
-	var calcR = opts.calculateResult;
+	var calcR = calculateResult;
 	if (calcR){
 		if (typeof calcR == 'function'){
-			this.calculateResult = calcR;
+			this.calculate_result = calcR;
 		} else {
 			if (calcR == 'some'){
-				this.calculateResult = this.some;
+				this.calculate_result = this.some;
 			} else if (calcR == 'every'){
-				this.calculateResult = this.every;
+				this.calculate_result = this.every;
 			}
 		}
 
 	} else {
-		this.calculateResult = this.some;
+		this.calculate_result = this.some;
 	}
 
 
 };
 StatesArchiver.prototype = {
+	event_callback: function(e) {
+		this.getItemsValues(e && e.target);
+	},
 	every: function(values_array) {
 		return !!values_array.every(hasargfn);
 	},
 	some: function(values_array) {
 		return !!values_array.some(hasargfn);
+	},
+	setResult: function(value) {
+		var old_value = this.md.current_motivator;
+		this.md.current_motivator = this.current_motivator;
+		this.md.updateState(this.result_state_name, value);
+		this.md.current_motivator = old_value;
 	},
 	getItemsValues: function(item) {
 		var current_motivator = (item && item.current_motivator) || this.current_motivator;
@@ -728,7 +753,7 @@ StatesArchiver.prototype = {
 		}
 		var old_value = this.current_motivator;
 		this.current_motivator = current_motivator;
-		this.returnResult.call(this, this.calculateResult.call(this, values_list));
+		this.setResult(this.calculate_result.call(this, values_list));
 		this.current_motivator = old_value;
 		return values_list;
 	},
@@ -743,7 +768,7 @@ StatesArchiver.prototype = {
 	setItems: function(items_list) {
 		items_list = items_list && spv.toRealArray(items_list);
 		this.setItemsReal(items_list);
-		this.checkFunc();
+		this.event_callback();
 	}
 };
 
@@ -1164,11 +1189,11 @@ FastEventor.prototype = {
 			return this.sputnik;
 		}
 	},
-	once: function(namespace, cb, opts){
+	once: function(namespace, cb, opts, context){
 		return this._addEventHandler(
 			namespace,
 			cb,
-			opts && opts.context,
+			opts && opts.context || context,
 			opts && opts.immediately,
 			opts && opts.exlusive,
 			opts && opts.skip_reg,
@@ -1176,11 +1201,11 @@ FastEventor.prototype = {
 			true,
 			opts && opts.easy_bind_control);
 	},
-	on: function(namespace, cb, opts){
+	on: function(namespace, cb, opts, context){
 		return this._addEventHandler(
 			namespace,
 			cb,
-			opts && opts.context,
+			opts && opts.context || context,
 			opts && opts.immediately,
 			opts && opts.exlusive,
 			opts && opts.skip_reg,
@@ -1800,11 +1825,11 @@ spv.Class.extendTo(provoda.Eventor, {
 	nextTick: function(fn, args, use_current_motivator) {
 		this._getCallsFlow().pushToFlow(fn, this, args, false, this.hndMotivationWrappper, this, use_current_motivator && this.current_motivator);
 	},
-	once: function(namespace, cb, opts) {
-		return this.evcompanion.once(namespace, cb, opts);
+	once: function(namespace, cb, opts, context) {
+		return this.evcompanion.once(namespace, cb, opts, context);
 	},
-	on: function(namespace, cb, opts) {
-		return this.evcompanion.on(namespace, cb, opts);
+	on: function(namespace, cb, opts, context) {
+		return this.evcompanion.on(namespace, cb, opts, context);
 	},
 	off: function(namespace, cb, obj, context) {
 		return this.evcompanion.off(namespace, cb, obj, context);
@@ -1852,11 +1877,7 @@ var iterateChList = function(changes_list, context, cb) {
 		cb.call(context, i, changes_list[i], changes_list[i+1]);
 	}
 };
-var reversedIterateChList = function(changes_list, context, cb) {
-	for (var i = changes_list.length - 1; i >= 0; i-=2) {
-		cb.call(context, i, changes_list[i-1], changes_list[i]);
-	}
-};
+
 
 var hasPrefixedProps = function(props, prefix) {
 	var has_prefixed;
@@ -1904,7 +1925,8 @@ var StatesLabour = function() {
 
 };
 
-provoda.Eventor.extendTo(provoda.StatesEmitter, {
+provoda.Eventor.extendTo(provoda.StatesEmitter, function(add) {
+add({
 	init: function(){
 		this._super();
 		this.conx_optsi = null;
@@ -2439,41 +2461,39 @@ provoda.Eventor.extendTo(provoda.StatesEmitter, {
 	},
 	state: function(name){
 		return this.states[name];
-	},
+	}
+});
+
+
+var compressChangesList = function(changes_list, i, prop_name, value, counter) {
+	if (this[prop_name] !== true){
+		var num = (changes_list.length - 1) - counter * 2;
+		changes_list[ num - 1 ] = prop_name;
+		changes_list[ num ] = value;
+
+		this[prop_name] = true;
+		return true;
+	}
+
+};
+var reversedIterateChList = function(changes_list, context, cb) {
+	var counter = 0;
+	for (var i = changes_list.length - 1; i >= 0; i-=2) {
+		if (cb.call(context, changes_list, i, changes_list[i-1], changes_list[i], counter)){
+			counter++;
+		}
+	}
+	return counter;
+};
+
+add({
 	compressStatesChanges: function(changes_list) {
 		var result_changes = {};
-		var counter = 0;
-
-		//reversedIterateChList()
-
-		/*iterateChList(changes_list, result_changes, function(i, name, value) {
-			delete this[name]; //reorder fields! hack!?
-			this[name] = value;
-		});*/
-		reversedIterateChList(changes_list, result_changes, function(i, name, value) {
-			if (!this.hasOwnProperty(name)){
-				
-
-				var num = (changes_list.length - 1) - counter * 2;
-				changes_list[ num - 1 ] = name;
-				changes_list[ num ] = value;
-
-				counter++;
-				this[name] = true;
-			}
-			//delete this[name]; //reorder fields! hack!?
-			//this[name] = value;
-		});
-		//changes_list.length = 0;
+		var counter = reversedIterateChList(changes_list, result_changes, compressChangesList);
 		counter = counter * 2;
 		while (changes_list.length != counter){
 			changes_list.shift();
 		}
-
-		/*for ( var name in result_changes ){
-			changes_list.push( name, result_changes[name] );
-		}*/
-
 		return changes_list;
 	},
 	state_ch_h_prefix: 'stch-',
@@ -2761,6 +2781,7 @@ provoda.Eventor.extendTo(provoda.StatesEmitter, {
 		return temp_comx.fn.apply(this, values);
 	}
 });
+});
 
 var getMDOfReplace = function(){
 	return this.md;
@@ -2782,7 +2803,8 @@ var getSiOpts = function(md) {
 };
 
 var models_counters = 1;
-provoda.StatesEmitter.extendTo(provoda.Model, {
+provoda.StatesEmitter.extendTo(provoda.Model, function(add) {
+add({
 	collectNestingsDeclarations: function(props) {
 		var need_recalc = hasPrefixedProps(props, 'nest-'), prop;
 
@@ -2963,39 +2985,24 @@ provoda.StatesEmitter.extendTo(provoda.Model, {
 		this.trigger('die');
 		big_index[this._provoda_id] = null;
 		return this;
-	},
+	}
+});
+
+
+
+var passCollectionsChange = function(e) {
+	this.setItems(e.value, e.target.current_motivator);
+};
+
+add({
 	watchChildrenStates: function(collection_name, state_name, callback) {
 		//
-		var _this = this;
-		var items_events = new ItemsEvents('state_change-' + state_name, function(e) {
-			var old_value = _this.current_motivator;
-			_this.current_motivator = e.target.current_motivator;
-			callback.call(_this, {
-				item: e.target,
-				value: arguments && arguments[0] && arguments[0].value,
-				args: arguments,
-				items: this.items_list
-			});
-			_this.current_motivator = old_value;
-		});
-		this.on('child_change-' + collection_name, function(e) {
-			items_events.setItems(e.value, this.current_motivator);
-		});
+		var items_events = new ItemsEvents('state_change-' + state_name, this, callback);
+		this.on('child_change-' + collection_name, passCollectionsChange, null, items_events);
 	},
 	archivateChildrenStates: function(collection_name, collection_state, statesCalcFunc, result_state_name) {
-		var _this = this;
-		var archiver = new StatesArchiver(collection_state, {
-			returnResult: function(value) {
-				var old_value = _this.current_motivator;
-				_this.current_motivator = this.current_motivator;
-				_this.updateState(result_state_name || collection_state, value);
-				_this.current_motivator = old_value;
-			},
-			calculateResult: statesCalcFunc
-		});
-		this.on('child_change-' + collection_name, function(e) {
-			archiver.setItems(e.value, this.current_motivator);
-		});
+		var archiver = new StatesArchiver(collection_state, result_state_name || collection_state, this, statesCalcFunc);
+		this.on('child_change-' + collection_name, passCollectionsChange, null, archiver);
 	},
 	getRelativeRequestsGroups: function(space, only_models) {
 		var all_models = [];
@@ -3226,6 +3233,7 @@ provoda.StatesEmitter.extendTo(provoda.Model, {
 
 		return big_result;
 	}
+});
 });
 provoda.Model.extendTo(provoda.HModel, {
 	init: function(opts) {
