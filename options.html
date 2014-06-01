@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="utf-8">
 	<style>
 		html,body {margin:0;padding:0;}
 		body{font: 14px/1.5 Arial, sans-serif;}
@@ -36,8 +37,18 @@
 			width: 580px;
 			height: 810px;
 		}
+		.sovetnik-trigger {
+			margin: 2rem 0;
+			
+		}
+		.sovetnik-trigger label {
+			cursor: pointer;
+			font-size: 1.5rem;
+		}
 	</style>
-	<meta charset="utf-8">
+	<script src="javascript/provoda/js/common-libs/jquery-2.1.0.min.js"></script>
+	<script src="javascript/provoda/js/libs/spv.js"></script>
+	<script src="javascript/options-page.js"></script>
 </head>
 <body>
 	
@@ -49,6 +60,14 @@
 		<h3 class="block_header">VK group are supporing mainely on Russian, but you are welcome to write in English too!</h3>
 		<div class="vk_block">
 			<iframe  src="http://seesu.me/public_helpers/chromus-vk_group.html" frameborder="0"></iframe>
+		</div>
+
+		<div class="sovetnik-trigger">
+			<label>
+				<input type="checkbox"/>
+				Disable sovetnik from <em>Last.fm free music player</em> <br> (Отключить "Советник" от <em>Last.fm free music player</em>)
+			</label>
+			<a href="http://sovetnik.metabar.ru" target="_blank">about sovetnik</a>
 		</div>
 				
 	</div>

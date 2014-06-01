@@ -1163,8 +1163,9 @@ spv.coe = function(cb) {
 	return result;
 };
 
+if (typeof define != 'undefined') {
+	define(function(){return spv;});
+}
+
 })();
 
-
-
-define(function(){return spv;});
