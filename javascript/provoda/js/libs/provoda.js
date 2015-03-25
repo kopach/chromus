@@ -940,7 +940,7 @@ var CallbacksFlow = function(win, rendering_flow, iteration_time) {
 	this.iteration_time = iteration_time || 250;
 	this.iteration_delayed = null;
 	this.flow_steps_counter = 1;
-	this.flow_steps_sorted = false;
+	this.flow_steps_collating_invalidated = null;
 	var _this = this;
 	this.hndIterateCallbacksFlow = function() {
 		_this.iterateCallbacksFlow();
@@ -970,11 +970,16 @@ CallbacksFlow.prototype = {
 				this.pushIteration(this.hndIterateCallbacksFlow);
 				break;
 			}
-			if (!this.flow_steps_sorted){
-				this.flow_steps_sorted = true;
-				this.flow.sort(sortFlows);
+			var cur;
+			if (typeof this.flow_steps_collating_invalidated == 'number'){
+				cur = this.flow[0];
+				if (this.flow_steps_collating_invalidated <= cur.complex_order[0]) {
+					this.flow_steps_collating_invalidated = null;
+					this.flow.sort(sortFlows);
+					
+				}
 			}
-			var cur = this.flow.shift();
+			cur = this.flow.shift();
 			if (!cur.aborted) {
 				cur.call();
 			}
@@ -997,7 +1002,30 @@ CallbacksFlow.prototype = {
 		var flow_step = new FlowStep(++this.flow_steps_counter, fn, context, args, cbf_arg, cb_wrapper, real_context, motivator);
 		this.flow.push(flow_step);
 		if (motivator){
-			this.flow_steps_sorted = false;
+			var last_item = this.flow[ this.flow.length - 1 ];
+			var result = last_item && sortFlows(last_item, flow_step);
+			if (result === 1) {
+				//очевидно, что новый элемент должен в результате занять другую позицию
+
+				var last_matched = -1;
+				for (var i = 0; i < this.flow.length; i++) {
+					var cur = this.flow[i];
+					var match_result = sortFlows(cur, flow_step);
+					if (match_result == -1) {
+						last_matched = i;
+					} else {
+						break;
+					}
+				}
+
+				spv.insertItem(this.flow, flow_step, last_matched + 1);
+				
+				//this.flow_steps_collating_invalidated = Math.min( flow_step.complex_order[0], this.flow_steps_collating_invalidated || Infinity );
+			} else {
+				this.flow.push(flow_step);
+			}
+		} else {
+			this.flow.push(flow_step);
 		}
 		this.checkCallbacksFlow();
 		return flow_step;
@@ -1456,7 +1484,7 @@ FastEventor.prototype = {
 				
 			});
 		};
-		var added = new Array(array.length);
+		var added = [];
 		for (i = 0; i < array.length; i++) {
 			req = array[i];
 			/*if (req.queued){
@@ -1472,7 +1500,7 @@ FastEventor.prototype = {
 			}
 			target_arr.push(req);
 			bindRemove(req);
-			added[i] = req;
+			added.push(req);
 		}
 		if (added.length){
 			if (!opts.skip_sort){
@@ -2063,14 +2091,14 @@ StatesLabour.prototype.removeFlowStep = function(space, index_key, item) {
 	var full_space = 'flow_steps_' + space;
 	var target = this[full_space][index_key];
 	if (!target) {
-		debugger;
+		// debugger;
 		return;
 	}
 	if (Array.isArray(target)) {
 		var pos = target.indexOf(item);
 		var arr = target.splice(pos, 1);
 		if (!arr.length) {
-			debugger;
+			// debugger;
 		}
 		
 	} else {
