@@ -192,18 +192,24 @@ MDProxy.prototype = {
 		}
 		
 		for (var i = 0; i < this.views.length; i++) {
-			this.views[i].collectionChange(collection_name, array, old_value, removed);
+			this.views[i].stackCollectionChange(collection_name, array, old_value, removed);
 		}
 	},
-	sendStatesToView: function(view, states_list) {
-		view.recieveStatesChanges(states_list);
+
+	stackReceivedStates: function(states_list) {
+		if (!this.views) {
+			return;
+		}
+		for (var i = 0; i < this.views.length; i++) {
+			this.views[i].stackReceivedChanges(states_list);
+		}
 	},
 	sendStatesToViews: function(states_list) {
 		if (!this.views) {
 			return;
 		}
 		for (var i = 0; i < this.views.length; i++) {
-			this.sendStatesToView(this.views[i], states_list);
+			this.views[i].receiveStatesChanges(states_list);
 		}
 	},
 	removeDeadViews: function(hard_deads_check, complex_id){
@@ -442,7 +448,7 @@ var views_proxies = {
 		for (var i = 0; i < this.spaces_list.length; i++) {
 			var cur = this.spaces_list[i];
 			if (cur.ids_index[md._provoda_id]) {
-				cur.mpxes_index[md._provoda_id].sendStatesToViews(states_list);
+				cur.mpxes_index[md._provoda_id].stackReceivedStates(states_list);
 
 			}
 		}
@@ -505,14 +511,14 @@ FakeModel.prototype = {
 	}
 };
 
-var SyncReciever = function(stream){
+var SyncReceiver = function(stream){
 	this.stream = stream;
 	this.md_proxs_index = {};
 	this.models_index = {};
 
 };
 
-SyncReciever.prototype = {
+SyncReceiver.prototype = {
 	
 	buildTree: function(array) {
 		var i, cur, cur_pvid;
@@ -566,7 +572,7 @@ SyncReciever.prototype = {
 			}
 
 			
-			this.md_proxs_index[message._provoda_id].sendStatesToViews(message.value);
+			this.md_proxs_index[message._provoda_id].stackReceivedStates(message.value);
 		},
 		update_nesting: function(message) {
 			if (message.struc) {
@@ -597,7 +603,7 @@ provoda = {
 	},
 	MDProxy: MDProxy,
 	sync_s: sync_sender,
-	SyncR: SyncReciever,
+	SyncR: SyncReceiver,
 	Eventor: function(){},
 	StatesEmitter: function(){},
 	Model: function(){},
@@ -679,7 +685,7 @@ var ItemsEvents = function(event_name, md, callback) {
 ItemsEvents.prototype = {
 	event_callback: function(e) {
 		var old_value = this.md.current_motivator;
-		this.md.current_motivator = e.target.current_motivator;
+		this.md.current_motivator = this.current_motivator;
 		this.callback.call(this.md, {
 			target: this.md,
 			item: e.target,
@@ -708,7 +714,7 @@ var StatesArchiver = function(state_name, result_state_name, md, calculateResult
 	this.result_state_name = result_state_name;
 
 	this.state_name = state_name;
-	this.event_name = 'state_change-' + this.state_name;
+	this.event_name = 'lgh_sch-' + this.state_name;
 	this.skip_reg = true;
 
 	var calcR = calculateResult;
@@ -730,8 +736,8 @@ var StatesArchiver = function(state_name, result_state_name, md, calculateResult
 
 };
 StatesArchiver.prototype = {
-	event_callback: function(e) {
-		this.getItemsValues(e && e.target);
+	event_callback: function() {
+		this.getItemsValues();
 	},
 	every: function(values_array) {
 		return !!values_array.every(hasargfn);
@@ -745,16 +751,12 @@ StatesArchiver.prototype = {
 		this.md.updateState(this.result_state_name, value);
 		this.md.current_motivator = old_value;
 	},
-	getItemsValues: function(item) {
-		var current_motivator = (item && item.current_motivator) || this.current_motivator;
+	getItemsValues: function() {
 		var values_list = new Array(this.items_list.length);
 		for (var i = 0; i < this.items_list.length; i++) {
 			values_list[i] = this.items_list[i].state(this.state_name);
 		}
-		var old_value = this.current_motivator;
-		this.current_motivator = current_motivator;
 		this.setResult(this.calculate_result.call(this, values_list));
-		this.current_motivator = old_value;
 		return values_list;
 	},
 	unsubcribeOld: function() {
@@ -793,6 +795,9 @@ var ev_na_cache = {};
 
 
 var FlowStep = function(num, fn, context, args, arg, cb_wrapper, real_context, parent_motivator) {
+	this.aborted = false;
+	this.p_space = '';
+	this.p_index_key = '';
 	this.num = num;
 	this.fn = fn;
 	this.context = context;
@@ -803,8 +808,24 @@ var FlowStep = function(num, fn, context, args, arg, cb_wrapper, real_context, p
 	this.complex_order = ( parent_motivator && parent_motivator.complex_order.slice() ) || [];
 	this.complex_order.push(this.num);
 };
+FlowStep.prototype.abort = function() {
+	this.aborted = true;
+	this.num = null;
+	this.fn = null;
+	this.context = null;
+	this.args = null;
+	this.arg = null;
+	this.cb_wrapper = null;
+	this.real_context = null;
+	//this.complex_order = null;
+};
 FlowStep.prototype.call = function() {
 	if (this.cb_wrapper){
+		/*
+		вместо того, что бы просто выполнить отложенную функцию мы можем вызвать специальный обработчик, который сможет сделать некие действиями, имея в распоряжении
+		в первую очередь мотиватор, далее контекст для самого себя, контекст колбэка, сам колбэк и аргументы для колбэка
+
+		*/
 		this.cb_wrapper.call(this.real_context, this, this.fn, this.context, this.args, this.arg);
 	} else {
 		if (this.args){
@@ -822,11 +843,20 @@ FlowStep.prototype.call = function() {
 };
 
 var sortFlows = function(item_one, item_two) {
-	var max_length = Math.max(item_one.complex_order.length, item_two.complex_order.length);
-	//
+	if (item_one.aborted && item_two.aborted) {
+		return;
+	} else if (item_one.aborted) {
+		return -1;
+	} else if (item_two.aborted) {
+		return 1;
+	}
+
+	var max_length = Math.max(item_one.complex_order.length, item_two.complex_order.length);	
+
 	for (var i = 0; i < max_length; i++) {
 		var item_one_step = item_one.complex_order[i];
 		var item_two_step = item_two.complex_order[i];
+
 		if (typeof item_one_step == 'undefined' && typeof item_two_step == 'undefined'){
 			return;
 		}
@@ -887,7 +917,6 @@ var getBoxedSetImmFunc = function(win) {
 };
 
 var getBoxedRAFFunc = function(win) {
-	return;
 	var raf;
 
 	if ( win.requestAnimationFrame ){
@@ -898,7 +927,7 @@ var getBoxedRAFFunc = function(win) {
 			raf = win[vendors[x]+'RequestAnimationFrame'];
 		}
 	}
-	return function(fn) {
+	return raf && function(fn) {
 		return raf.call(win, fn);
 	};
 };
@@ -946,7 +975,10 @@ CallbacksFlow.prototype = {
 				this.flow.sort(sortFlows);
 			}
 			var cur = this.flow.shift();
-			cur.call();
+			if (!cur.aborted) {
+				cur.call();
+			}
+			
 			
 			
 		}
@@ -962,17 +994,25 @@ CallbacksFlow.prototype = {
 		}
 	},
 	pushToFlow: function(fn, context, args, cbf_arg, cb_wrapper, real_context, motivator) {
-		this.flow.push(new FlowStep(++this.flow_steps_counter, fn, context, args, cbf_arg, cb_wrapper, real_context, motivator));
+		var flow_step = new FlowStep(++this.flow_steps_counter, fn, context, args, cbf_arg, cb_wrapper, real_context, motivator);
+		this.flow.push(flow_step);
 		if (motivator){
 			this.flow_steps_sorted = false;
 		}
 		this.checkCallbacksFlow();
+		return flow_step;
+
 	}
 };
 provoda.CallbacksFlow = CallbacksFlow;
 
 var main_calls_flow = new CallbacksFlow(window);
 
+
+
+var stackEmergency = function(fn, eventor, args) {
+	return main_calls_flow.pushToFlow(fn, eventor, args);
+};
 
 var requests_by_declarations = {};
 
@@ -1119,6 +1159,9 @@ FastEventor.prototype = {
 	},
 
 	hndUsualEvCallbacksWrapper: function(motivator, fn, context, args, arg) {
+		if (motivator.p_space) {
+			this.zdsv.removeFlowStep(motivator.p_space, motivator.p_index_key, motivator);
+		}
 		if (args){
 			fn.apply(context, args);
 		} else {
@@ -1159,11 +1202,11 @@ FastEventor.prototype = {
 		}
 		if (fired){
 			if (reg_fires[0].getWrapper){
-				callbacks_wrapper = reg_fires[0].getWrapper.call(this);
+				callbacks_wrapper = reg_fires[0].getWrapper.call(this.sputnik);
 			}
 			if (!skip_reg){
 				var mo_context = context || _this.sputnik;
-				if (typeof soft_reg != 'undefined' && !soft_reg){
+				if (soft_reg === false){
 					if (one_reg_arg) {
 						cb.call(mo_context, one_reg_arg);
 					} else {
@@ -1171,7 +1214,11 @@ FastEventor.prototype = {
 					}
 					
 				} else {
-					this.sputnik._getCallsFlow().pushToFlow(cb, mo_context, reg_args, one_reg_arg, callbacks_wrapper, this.sputnik, this.sputnik.current_motivator);
+					var flow_step = this.sputnik._getCallsFlow().pushToFlow(cb, mo_context, reg_args, one_reg_arg, callbacks_wrapper, this.sputnik, this.sputnik.current_motivator);
+					if (reg_fires[0].handleFlowStep) {
+
+						reg_fires[0].handleFlowStep.call(this.sputnik, flow_step, reg_fires[0].getFSNamespace(namespace));
+					}
 				}
 			}
 		}
@@ -1214,8 +1261,8 @@ FastEventor.prototype = {
 			opts && opts.easy_bind_control);
 	},
 	off: function(namespace, cb, obj, context){
-		if (this.convertEventName){
-			namespace = this.convertEventName(namespace);
+		if (this.sputnik.convertEventName){
+			namespace = this.sputnik.convertEventName(namespace);
 		}
 		var
 			short_name = parseNamespace(namespace)[0],
@@ -1270,8 +1317,8 @@ FastEventor.prototype = {
 		not_matched: []
 	},
 	getMatchedCallbacks: function(namespace){
-		if (this.convertEventName){
-			namespace = this.convertEventName(namespace);
+		if (this.sputnik.convertEventName){
+			namespace = this.sputnik.convertEventName(namespace);
 		}
 		var
 			r, short_name = parseNamespace(namespace)[0];
@@ -1322,24 +1369,29 @@ FastEventor.prototype = {
 		} else {
 			var callback_context = cur.context || this.sputnik;
 			var wrapper_context = this.sputnik;
-			this.sputnik._getCallsFlow().pushToFlow(cur.cb, callback_context, args, arg, cur.wrapper, wrapper_context, this.sputnik.current_motivator);
+
+			var calls_flow = (opts && opts.emergency) ? main_calls_flow : this.sputnik._getCallsFlow();
+			return calls_flow.pushToFlow(cur.cb, callback_context, args, arg, cur.wrapper, wrapper_context, this.sputnik.current_motivator);
 			/*
 			setTimeout(function() {
 				cur.cb.apply(_this, args);
 			},1);*/
 		}
 	},
-	triggerCallbacks: function(cb_cs, args, opts, name, arg){
+	triggerCallbacks: function(cb_cs, args, opts, ev_name, arg, flow_steps_array){
 		for (var i = 0; i < cb_cs.length; i++) {
 			var cur = cb_cs[i];
-			this.callEventCallback(cur, args, opts, arg);
+			var flow_step = this.callEventCallback(cur, args, opts, arg);
+			if (flow_step && flow_steps_array) {
+				flow_steps_array.push(flow_step);
+			}
 			if (cur.once){
-				this.off(name, false, cur);
+				this.off(ev_name, false, cur);
 			}
 		}
 	},
-	trigger: function(name){
-		var cb_cs = this.getMatchedCallbacks(name).matched;
+	trigger: function(ev_name){
+		var cb_cs = this.getMatchedCallbacks(ev_name).matched;
 		if (cb_cs){
 			var i = 0;
 			var args = new Array(arguments.length - 1);
@@ -1351,7 +1403,7 @@ FastEventor.prototype = {
 				var cur = cb_cs[i];
 				this.callEventCallback(cur, args, (args && args[ args.length -1 ]));
 				if (cur.once){
-					this.off(name, false, cur);
+					this.off(ev_name, false, cur);
 				}
 			}
 		}
@@ -1415,7 +1467,7 @@ FastEventor.prototype = {
 			}
 			if (opts.depend){
 				if (req){
-					req.addDepend(this);
+					req.addDepend(this.sputnik);
 				}
 			}
 			target_arr.push(req);
@@ -1474,9 +1526,9 @@ FastEventor.prototype = {
 			var rq = all_requests.pop();
 			if (rq) {
 				if (rq.softAbort){
-					rq.softAbort(this);
+					rq.softAbort(this.sputnik);
 				} else if (rq.abort){
-					rq.abort(this);
+					rq.abort(this.sputnik);
 				}
 			}
 		}
@@ -1789,21 +1841,54 @@ FastEventor.prototype = {
 
 };
 var hndMotivationWrappper = function(motivator, fn, context, args, arg) {
-	if (this.isAliveFast && !this.isAliveFast() && fn !== this.remove) {
+
+	if (motivator.p_space) {
+		this.zdsv.removeFlowStep(motivator.p_space, motivator.p_index_key, motivator);
+	}
+
+	
+
+
+	if (this.isAliveFast && !this.isAliveFast()) {
 		return;
 	}
 
-	var old_value = this.current_motivator;
-	this.current_motivator = motivator;
+	//устанавливаем мотиватор конечному пользователю события
+	var ov_c = context.current_motivator;
+	context.current_motivator = motivator;
+
+	
+
+	var ov_t;
+
+	if (this != context) {
+		//устанавливаем мотиватор реальному владельцу события, чтобы его могли взять вручную
+		//что-то вроде api
+		ov_t = this.current_motivator;
+		this.current_motivator = motivator;
+	}
+
+
+
 	if (args){
 		fn.apply(context, args);
 	} else {
 		fn.call(context, arg);
 	}
-	if (this.current_motivator != motivator){
-		throw new Error('wrong motivator'); //fixme
+
+
+	if (context.current_motivator != motivator){
+		throw new Error('wrong motivator'); //тот кто поменял current_motivator должен был вернуть его обратно
 	}
-	this.current_motivator = old_value;
+	context.current_motivator = ov_c;
+
+
+	if (this != context) {
+		if (this.current_motivator != motivator){
+			throw new Error('wrong motivator'); //тот кто поменял current_motivator должен был вернуть его обратно
+		}
+		this.current_motivator = ov_t;
+	}
 };
 spv.Class.extendTo(provoda.Eventor, {
 	init: function(){
@@ -1821,9 +1906,8 @@ spv.Class.extendTo(provoda.Eventor, {
 		item.current_motivator = old_value;
 		return result;
 	},
-	hndMotivationWrappper: hndMotivationWrappper,
 	nextTick: function(fn, args, use_current_motivator) {
-		this._getCallsFlow().pushToFlow(fn, this, args, false, this.hndMotivationWrappper, this, use_current_motivator && this.current_motivator);
+		return this._getCallsFlow().pushToFlow(fn, this, args, false, hndMotivationWrappper, this, use_current_motivator && this.current_motivator);
 	},
 	once: function(namespace, cb, opts, context) {
 		return this.evcompanion.once(namespace, cb, opts, context);
@@ -1872,9 +1956,9 @@ var wipeObj = function (obj){
 		}
 	}
 };
-var iterateChList = function(changes_list, context, cb) {
+var iterateChList = function(changes_list, context, cb, zdsv) {
 	for (var i = 0; i < changes_list.length; i+=2) {
-		cb.call(context, i, changes_list[i], changes_list[i+1]);
+		cb.call(context, i, changes_list[i], changes_list[i+1], zdsv);
 	}
 };
 
@@ -1890,7 +1974,7 @@ var hasPrefixedProps = function(props, prefix) {
 	return has_prefixed;
 };
 
-var std_event_opt = {force_async: true};
+
 
 var connects_store = {};
 var getConnector = function(state_name) {
@@ -1901,6 +1985,17 @@ var getConnector = function(state_name) {
 	}
 	return connects_store[state_name];
 };
+
+var light_con_store = {};
+var getLightConnector = function(state_name) {
+	if (!light_con_store[state_name]){
+		light_con_store[state_name] = function(value) {
+			this.updateState(state_name, value);
+		};
+	}
+	return light_con_store[state_name];
+};
+
 var PVStateChangeEvent = function(type, value, old_value, target) {
 	this.type = type;
 	this.value = value;
@@ -1915,6 +2010,10 @@ var EvConxOpts = function(context, immediately) {
 };
 
 var StatesLabour = function() {
+	this.flow_steps_stev = null;
+	this.flow_steps_collch = null;
+	this.flow_steps_stch = null;
+
 	this.collecting_states_changing = false;
 	this.original_states = {};
 	this.states_changing_stack = [];
@@ -1922,8 +2021,92 @@ var StatesLabour = function() {
 	this.all_ch_compxs = [];
 	this.changed_states = [];
 	this.total_ch = [];
+};
+StatesLabour.prototype.abortFlowSteps = function(space, index_key, is_one_item) {
+	var full_space = 'flow_steps_' + space;
+
+	if (!this[full_space]){
+		return;
+	}
+
+	var array = this[full_space][index_key];
+	if (!array) {
+		return;
+	}
+	if (!is_one_item) {
+		while (array.length) {
+			var cur = array.shift();
+			cur.abort();
+		}
+	} else {
+		array.abort();
+		this[full_space][index_key] = null;
+	}
+	
+	return;
+};
+StatesLabour.prototype.createFlowStepsArray = function(space, index_key, one_item) {
+	var full_space = 'flow_steps_' + space;
+	if (!this[full_space]){
+		this[full_space] = {};
+	}
+	if (one_item) {
+		this[full_space][index_key] = one_item;
+	} else if (!this[full_space][index_key]) {
+		this[full_space][index_key] = [];
+	}
+
+	return this[full_space][index_key];
+};
+
+StatesLabour.prototype.removeFlowStep = function(space, index_key, item) {
+	var full_space = 'flow_steps_' + space;
+	var target = this[full_space][index_key];
+	if (!target) {
+		debugger;
+		return;
+	}
+	if (Array.isArray(target)) {
+		var pos = target.indexOf(item);
+		var arr = target.splice(pos, 1);
+		if (!arr.length) {
+			debugger;
+		}
+		
+	} else {
+		if (target == item) {
+			this[full_space][index_key] = null;
+		} else {
+			console.log('wrong motivator !?')
+		}
+	}
+	
 
 };
+
+
+
+
+var stackStateFlowStep = function(flow_step, state_name) {
+	if (!this.zdsv) {
+		this.zdsv = new StatesLabour();
+		//debugger;
+	}
+	flow_step.p_space = 'stev';
+	flow_step.p_index_key = state_name;
+	this.zdsv.createFlowStepsArray('stev', state_name).push(flow_step);
+};
+
+var stackNestingFlowStep = function(flow_step, nesting_name) {
+	if (!this.zdsv) {
+		this.zdsv = new StatesLabour();
+		//debugger;
+	}
+	flow_step.p_space = 'collch';
+	flow_step.p_index_key = nesting_name;
+	this.zdsv.createFlowStepsArray('collch', nesting_name).push(flow_step);
+};
+
 
 provoda.Eventor.extendTo(provoda.StatesEmitter, function(add) {
 add({
@@ -1953,8 +2136,12 @@ add({
 			};
 		},
 		getWrapper: function() {
-			return this.hndMotivationWrappper;
-		}
+			return hndMotivationWrappper;
+		},
+		getFSNamespace: function(namespace) {
+			return namespace.replace('vip_state_change-', '');
+		},
+		handleFlowStep: stackStateFlowStep
 	},
 	'regfr-stev': {
 		test: function(namespace) {
@@ -1968,10 +2155,28 @@ add({
 			};
 		},
 		getWrapper: function() {
-			return this.hndMotivationWrappper;
-		}
+			return hndMotivationWrappper;
+		},
+		getFSNamespace: function(namespace) {
+			return namespace.replace('state_change-', '');
+		},
+		handleFlowStep: stackStateFlowStep
 	},
-
+	'regfr-lightstev': {
+		test: function(namespace) {
+			return namespace.indexOf('lgh_sch-') === 0;
+		},
+		fn: function(namespace) {
+			return this.state(namespace.replace('lgh_sch-', ''));
+		},
+		getWrapper: function() {
+			return hndMotivationWrappper;
+		},
+		getFSNamespace: function(namespace) {
+			return namespace.replace('lgh_sch-', '');
+		},
+		handleFlowStep: stackStateFlowStep
+	},
 	getContextOptsI: function() {
 		if (!this.conx_optsi){
 			this.conx_optsi = new EvConxOpts(this, true);
@@ -1983,6 +2188,24 @@ add({
 			this.conx_opts = new EvConxOpts(this);
 		}
 		return this.conx_opts;
+	},
+	wlch: function(donor, donor_state, acceptor_state) {
+		var event_name = 'lgh_sch-' + donor_state;
+		var acceptor_state_name = acceptor_state || donor_state;
+		var cb = getLightConnector(acceptor_state_name);
+		donor.evcompanion._addEventHandler(event_name, cb, this);
+
+		if (this != donor && this instanceof provoda.View){
+			this.onDie(function() {
+				if (!donor) {
+					return;
+				}
+				donor.off(event_name, cb, false, this);
+				donor = null;
+				cb = null;
+			});
+		}
+
 	},
 	wch: function(donor, donor_state, acceptor_state, immediately) {
 	
@@ -2000,6 +2223,8 @@ add({
 		if (this != donor && this instanceof provoda.View){
 			this.onDie(function() {
 				donor.off(event_name, cb, false, this);
+				donor = null;
+				cb = null;
 			});
 		}
 
@@ -2266,7 +2491,7 @@ add({
 					if (!target){
 						throw new Error();
 					}
-					md.wch(target, cur.state_name, cur.full_name);
+					md.wlch(target, cur.state_name, cur.full_name);
 				}
 
 			},
@@ -2299,7 +2524,7 @@ add({
 					if (!target){
 						throw new Error();
 					}
-					md.wch(target, cur.state_name, cur.full_name);
+					md.wlch(target, cur.state_name, cur.full_name);
 				}
 				
 			}
@@ -2486,6 +2711,13 @@ var reversedIterateChList = function(changes_list, context, cb) {
 	return counter;
 };
 
+
+var st_event_name_default = 'state_change-';
+var st_event_name_vip = 'vip_state_change-';
+var st_event_name_light = 'lgh_sch-';
+
+var st_event_opt = {force_async: true};
+
 add({
 	compressStatesChanges: function(changes_list) {
 		var result_changes = {};
@@ -2497,7 +2729,7 @@ add({
 		return changes_list;
 	},
 	state_ch_h_prefix: 'stch-',
-	_replaceState: function(state_name, value, skip_handler, stack) {
+	_replaceState: function(original_states, state_name, value, skip_handler, stack) {
 		if (state_name){
 			var old_value = this.states[state_name],
 				method;
@@ -2518,14 +2750,21 @@ add({
 				//less calculations? (since false and "" and null and undefined now os equeal and do not triggering changes)
 				//
 
-				if (!this.zdsv.original_states.hasOwnProperty(state_name)) {
-					this.zdsv.original_states[state_name] = this.states[state_name];
+				if (!original_states.hasOwnProperty(state_name)) {
+					original_states[state_name] = this.states[state_name];
 				}
 
 				this.states[state_name] = value;
 
 				if (method){
-					this.nextTick(method, [value, old_value, state_name], true);
+					this.zdsv.abortFlowSteps('stch', state_name, true);
+					var flow_step = this.nextTick(method, [value, old_value, state_name], true);
+					flow_step.p_space = 'stch';
+					flow_step.p_index_key = state_name;
+					this.zdsv.createFlowStepsArray('stch', state_name, flow_step);
+
+
+					
 					//method.call(this, value, old_value);
 				}
 				stack.push(state_name, value);
@@ -2533,28 +2772,54 @@ add({
 			}
 		}
 	},
-	st_event_name_default: 'state_change-',
-	st_event_name_vip: 'vip_state_change-',
-	_triggerStChanges: function(i, state_name, value) {
+	_triggerStChanges: function(i, state_name, value, zdsv) {
 
-		var vip_name = this.st_event_name_vip + state_name;
-		var default_name = this.st_event_name_default + state_name;
+		var vip_name = st_event_name_vip + state_name;
+		var default_name = st_event_name_default + state_name;
+		var light_name = st_event_name_light + state_name;
 
 		var vip_cb_cs = this.evcompanion.getMatchedCallbacks(vip_name).matched;
 		var default_cb_cs = this.evcompanion.getMatchedCallbacks(default_name).matched;
+		var light_cb_cs = this.evcompanion.getMatchedCallbacks(light_name).matched;
 
 
 
-		if (vip_cb_cs.length || default_cb_cs.length){
-			var event_arg = new PVStateChangeEvent(state_name, value, this.zdsv.original_states[state_name], this);
+		var flow_steps;
+		zdsv.abortFlowSteps('stev', state_name);
 
-			if (vip_cb_cs.length){
-				//вызов внутреннего для самого объекта события
-				this.evcompanion.triggerCallbacks(vip_cb_cs, false, false, vip_name, event_arg);
-			}
-			if (default_cb_cs.length){
-				//вызов стандартного события
-				this.evcompanion.triggerCallbacks(default_cb_cs, false, std_event_opt, default_name, event_arg);
+
+		if (vip_cb_cs.length || light_cb_cs.length || default_cb_cs.length) {
+	
+			flow_steps = zdsv.createFlowStepsArray('stev', state_name);
+			
+		}
+
+		
+
+		
+
+
+		var event_arg = (vip_cb_cs.length || default_cb_cs.length) && new PVStateChangeEvent(state_name, value, zdsv.original_states[state_name], this);
+
+		if (vip_cb_cs.length){
+			//вызов внутреннего для самого объекта события
+			this.evcompanion.triggerCallbacks(vip_cb_cs, false, false, vip_name, event_arg, flow_steps);
+		}
+
+		if (light_cb_cs.length) {
+			this.evcompanion.triggerCallbacks(light_cb_cs, false, false, light_name, value, flow_steps);
+		}
+
+
+		if (default_cb_cs.length) {
+			//вызов стандартного события
+			this.evcompanion.triggerCallbacks(default_cb_cs, false, st_event_opt, default_name, event_arg, flow_steps);
+		}
+		if (flow_steps) {
+			for (var vv = 0; vv < flow_steps.length; vv++) {
+				var cur = flow_steps[vv];
+				cur.p_space = 'stev';
+				cur.p_index_key = state_name;
 			}
 		}
 
@@ -2647,6 +2912,8 @@ add({
 		
 
 		zdsv.collecting_states_changing = true;
+		//this.zdsv is important for this!!!
+		//this.zdsv.collecting_states_changing - must be semi public;
 
 
 		var total_ch = zdsv.total_ch;
@@ -2657,10 +2924,8 @@ add({
 		
 		while (zdsv.states_changing_stack.length){
 
-			wipeObj(original_states);
-			all_i_cg.length = all_ch_compxs.length = changed_states.length = 0;
-			//объекты используются повторно, ради выиграша в производительности
-			//которые заключается в исчезновении пауз на сборку мусора 
+			
+			
 
 			//spv.cloneObj(original_states, this.states);
 
@@ -2668,13 +2933,13 @@ add({
 			var cur_changes_opts = zdsv.states_changing_stack.shift();
 
 			//получить изменения для состояний, которые изменил пользователь через публичный метод
-			this.getChanges(cur_changes_list, cur_changes_opts, changed_states);
+			this.getChanges(original_states, cur_changes_list, cur_changes_opts, changed_states);
 			//var changed_states = ... ↑
 
 			cur_changes_list = cur_changes_opts = null;
 
 			//проверить комплексные состояния
-			var first_compxs_chs = this.getComplexChanges(changed_states);
+			var first_compxs_chs = this.getComplexChanges(original_states, changed_states);
 			if (first_compxs_chs.length){
 				push.apply(all_ch_compxs, first_compxs_chs);
 			}
@@ -2682,7 +2947,7 @@ add({
 			var current_compx_chs = first_compxs_chs;
 			//довести изменения комплексных состояний до самого конца
 			while (current_compx_chs.length){
-				var cascade_part = this.getComplexChanges(current_compx_chs);
+				var cascade_part = this.getComplexChanges(original_states, current_compx_chs);
 				current_compx_chs = cascade_part;
 				if (cascade_part.length){
 					push.apply(all_ch_compxs, cascade_part);
@@ -2702,43 +2967,49 @@ add({
 			this.compressStatesChanges(all_i_cg);
 
 
-			iterateChList(all_i_cg, this, this._triggerStChanges);
+			
+
+
+			iterateChList(all_i_cg, this, this._triggerStChanges, zdsv);
 
 			if (all_i_cg.length){
 				push.apply(total_ch, all_i_cg);
 			}
+
+
+			wipeObj(original_states);
+			all_i_cg.length = all_ch_compxs.length = changed_states.length = 0;
+			//объекты используются повторно, ради выиграша в производительности
+			//которые заключается в исчезновении пауз на сборку мусора 
 		}
 
 		//устраняем измененное дважды и более
 		this.compressStatesChanges(total_ch);
 
 
-		wipeObj(original_states);
-		all_i_cg.length = all_ch_compxs.length = changed_states.length = 0;
+		//wipeObj(original_states);
+		//all_i_cg.length = all_ch_compxs.length = changed_states.length = 0;
 
-		if (this.sendStatesToViews && total_ch.length){
-			this.nextTick(this.sendChangesAfterDelay);
+		if (this.sendStatesToMPX && total_ch.length){
+			this.sendStatesToMPX(total_ch);
+			total_ch.length = 0;
 		} else {
 			total_ch.length = 0;
 		}
 
 
 		zdsv.collecting_states_changing = false;
+		//this.zdsv = null;
 		return this;
 	},
-	sendChangesAfterDelay: function() {
-		if (this.zdsv.total_ch.length){
-			this.sendStatesToViews(this.zdsv.total_ch);
-			this.zdsv.total_ch.length = 0;
-		}
+
+	getComplexChanges: function(original_states, changes_list) {
+		return this.getChanges(original_states, this.checkComplexStates(changes_list));
 	},
-	getComplexChanges: function(changes_list) {
-		return this.getChanges(this.checkComplexStates(changes_list));
-	},
-	getChanges: function(changes_list, opts, result_arr) {
+	getChanges: function(original_states, changes_list, opts, result_arr) {
 		var changed_states = result_arr || [];
 		for (var i = 0; i < changes_list.length; i+=2) {
-			this._replaceState(changes_list[i], changes_list[i+1], opts && opts.skip_handler, changed_states);
+			this._replaceState(original_states, changes_list[i], changes_list[i+1], opts && opts.skip_handler, changed_states);
 		}
 		if (this.updateTemplatesStates){
 			this.updateTemplatesStates(changes_list);
@@ -2801,6 +3072,17 @@ var getSiOpts = function(md) {
 		si_opts_cache[provoda_id] = new SIOpts(md);
 	}
 	return si_opts_cache[provoda_id];
+};
+
+var emergency_opt = {
+	emergency: true
+};
+
+var triggerDestroy = function(md) {
+	var array = md.evcompanion.getMatchedCallbacks('die').matched;
+	if (array.length) {
+		md.evcompanion.triggerCallbacks(array, false, emergency_opt, 'die');
+	}
 };
 
 var models_counters = 1;
@@ -2884,8 +3166,12 @@ add({
 			}
 		},
 		getWrapper: function() {
-			return this.hndMotivationWrappper;
-		}
+			return hndMotivationWrappper;
+		},
+		getFSNamespace: function(namespace) {
+			return namespace.replace('child_change-', '');
+		},
+		handleFlowStep: stackNestingFlowStep
 	},
 	getStrucRoot: function() {
 		return this.app;
@@ -2983,7 +3269,7 @@ add({
 		this.stopRequests();
 		//this.mpx.die();
 		views_proxies.killMD(this);
-		this.trigger('die');
+		triggerDestroy(this);
 		big_index[this._provoda_id] = null;
 		return this;
 	}
@@ -3069,20 +3355,61 @@ add({
 			//console.log(removed);
 		}
 
-		var event_obj = {
-			value: null,
-			old_value: null,
-			target: null,
-			nesting_name: collection_name
-		};
-		if (typeof opts == 'object'){
-			spv.cloneObj(event_obj, opts);
+
+
+		var full_ev_name = 'child_change-' + collection_name;
+
+		var chch_cb_cs = this.evcompanion.getMatchedCallbacks(full_ev_name).matched;
+
+		var zdsv = this.zdsv;
+		if (zdsv) {
+			zdsv.abortFlowSteps('collch', collection_name);
 		}
-		//opts = opts || {};
-		event_obj.value = array;
-		event_obj.old_value = old_value;
-		event_obj.target = this;
-		this.trigger('child_change-' + collection_name, event_obj);
+		var flow_steps;
+
+
+		
+		if (chch_cb_cs.length) {
+			if (!this.zdsv) {
+				this.zdsv = new StatesLabour();
+				//debugger;
+			}
+			zdsv = this.zdsv;
+			flow_steps = zdsv.createFlowStepsArray('collch', collection_name);
+			
+
+			var event_obj = {
+				value: null,
+				old_value: null,
+				target: null,
+				nesting_name: collection_name
+			};
+			if (typeof opts == 'object'){
+				spv.cloneObj(event_obj, opts);
+			}
+			//opts = opts || {};
+			event_obj.value = array;
+			event_obj.old_value = old_value;
+			event_obj.target = this;
+			//this.trigger(full_ev_name, event_obj);
+
+			this.evcompanion.triggerCallbacks(chch_cb_cs, false, false, full_ev_name, event_obj, flow_steps);
+
+			for (var vv = 0; vv < flow_steps.length; vv++) {
+				var curf = flow_steps[vv];
+				curf.p_space = 'collch';
+				curf.p_index_key = collection_name;
+			}
+		}
+
+
+
+
+
+
+
+
+
 
 		if (!opts || !opts.skip_report){
 			this.sendCollectionChange(collection_name, array, old_value, removed);
@@ -3100,12 +3427,13 @@ add({
 	},
 	complex_st_prefix: 'compx-',
 
-	sendStatesToViews: function(states_list) {
+	sendStatesToMPX: function(states_list) {
 		//this.removeDeadViews();
-		sync_sender.pushStates(this, states_list);
-		views_proxies.pushStates(this, states_list);
+		var dubl = states_list.slice();
+		sync_sender.pushStates(this, dubl);
+		views_proxies.pushStates(this, dubl);
 		if (this.mpx) {
-			this.mpx.sendStatesToViews(states_list);
+			this.mpx.stackReceivedStates(dubl);
 		}
 		//
 	},
@@ -3619,10 +3947,10 @@ provoda.StatesEmitter.extendTo(provoda.View, {
 	PvTemplate: PvTemplate,
 	getTemplate: function(node, callCallbacks, pvTypesChange) {
 		node = node[0] || node;
-		return new PvTemplate({node: node, callCallbacks: callCallbacks, pvTypesChange: pvTypesChange});
+		return new PvTemplate({node: node, callCallbacks: callCallbacks, pvTypesChange: pvTypesChange, struc_store: this.root_view.struc_store});
 	},
 	parseAppendedTPLPart: function(node) {
-		this.tpl.parseAppended(node);
+		this.tpl.parseAppended(node, this.root_view.struc_store);
 		this.tpl.setStates(this.states);
 	},
 	createTemplate: function(ext_node) {
@@ -4014,22 +4342,39 @@ provoda.StatesEmitter.extendTo(provoda.View, {
 		this.on('die', cb);
 	},
 	markAsDead: function(skip_md_call) {
+		var i = 0;
 		if (this.proxies_space) {
 			views_proxies.removeSpaceById(this.proxies_space);
 		}
-		this.nextTick(this.remove, [this.getC(), this._lbr._anchor]);
+		stackEmergency(this.remove, this, [this.getC(), this._lbr._anchor]);
 		this.dead = true; //new DeathMarker();
 		this.stopRequests();
 
-		this.trigger('die');
+		triggerDestroy(this);
 		if (!skip_md_call){
 			this.mpx.removeDeadViews();
 		}
 
 		this.c = null;
+
+		if (this.base_skeleton) {
+			for (i = 0; i < this.base_skeleton.length; i++) {
+				$(this.base_skeleton[i].node);
+			}
+			this.base_skeleton = null;
+		}
+
+
 		this._lbr._anchor = null;
-		this.tpl = null;
+		if (this.tpl) {
+			this.tpl.destroy();
+			this.tpl = null;
+		}
+		
 		if (this.tpls){
+			for (i = 0; i < this.tpls.length; i++) {
+				this.tpls[i].destroy();
+			}
 			this.tpls = null;
 		}
 		this.way_points = null;
@@ -4042,7 +4387,7 @@ provoda.StatesEmitter.extendTo(provoda.View, {
 		}
 		
 
-		var i = 0;
+		
 		if (this.dom_related_props){
 			for (i = 0; i < this.dom_related_props.length; i++) {
 				this[this.dom_related_props[i]] = null;
@@ -4076,6 +4421,7 @@ provoda.StatesEmitter.extendTo(provoda.View, {
 	},
 	die: function(opts){
 		if (!this._lbr.marked_as_dead){
+			$(this.getC()).remove();
 			this.markAsDead(opts && opts.skip_md_call);
 			this._lbr.marked_as_dead = true;
 		}
@@ -4294,7 +4640,13 @@ provoda.StatesEmitter.extendTo(provoda.View, {
 		}
 		return has_all_dependings;
 	},
-	recieveStatesChanges: function(changes_list) {
+	stackReceivedChanges: function() {
+		if (!this.isAlive()){
+			return;
+		}
+		this.nextTick(this._updateProxy, arguments);
+	},
+	receiveStatesChanges: function(changes_list) {
 		if (!this.isAlive()){
 			return;
 		}
@@ -4473,6 +4825,9 @@ provoda.StatesEmitter.extendTo(provoda.View, {
 	},
 	tpl_children_prefix: 'tpl.children_templates.',
 	collch_h_prefix: 'collch-',
+	stackCollectionChange: function() {
+		this.nextTick(this.collectionChange, arguments);
+	},
 	collectionChange: function(nesname, array, rold_value, removed) {
 		if (!this.isAlive()){
 			return;

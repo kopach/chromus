@@ -44,9 +44,6 @@
       },{
        "js": ["javascript/jquery.min.js", "javascript/hotkeys.js"],
        "matches": ["http://*/*", "https://*/*"]
-      },{
-      "js": ["javascript/content_scripts/partners/sovetnik.js"],
-      "matches": ["http://*/*", "https://*/*"]
       }
    ],
    "background": {
