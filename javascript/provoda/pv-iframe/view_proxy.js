@@ -110,9 +110,9 @@ spv.domReady(document, function() {
 	// Tabs when switching in charts
 	if (window.MutationObserver) {
 		var i, cur, cur_parent;
-		var tabs = document.querySelectorAll('.horizontalOptions');
+		var parents;
 
-		var parents, cur_parent;
+		var tabs = document.querySelectorAll('.horizontalOptions');		
 
 		var reportChanges = function() {
 			if (root_view) {
