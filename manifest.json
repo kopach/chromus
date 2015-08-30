@@ -1,7 +1,7 @@
 {
    "manifest_version": 2,
    "name": "Last.fm free music player",
-   "version": "3.39",
+   "version": "3.4",
    "description": "!! Yes it plays music! Browser as a music player? Why not? Free music player for Google Chrome with Last.fm integration.",
    "icons": {
       "128": "lastfm_128.png"
@@ -14,6 +14,7 @@
    },
    "web_accessible_resources": [
      "javascript/provoda/pv-iframe/view_proxy.js",
+     "javascript/provoda/pv-iframe/parser.js",
      "javascript/provoda/js/libs/provoda.js",
      "javascript/provoda/js/libs/spv.js",
      "javascript/provoda/js/libs/StatementsAngularParser.min.js",
@@ -31,11 +32,9 @@
    "content_scripts": [ 
       {
         "css": [ "css/mp3_player_button.css", "css/style.css", "javascript/provoda/playbutton.css" ],
-        "js": [ 
-          "javascript/content_scripts/manager.js",
+        "js": [
           "javascript/provoda/pv-iframe/loader.js",
           "javascript/provoda/js/common-libs/require-2.1.10.min.js"
-          
         ],
         "matches": [ "http://*.last.fm/*", "http://*.lastfm.ru/*","http://*.lastfm.pt/*",  "http://*.lastfm.de/*", "http://*.lastfm.es/*", "http://*.lastfm.fr/*", "http://*.lastfm.it/*", "http://*.lastfm.jp/*", "http://*.lastfm.pl/*", "http://*.lastfm.com.br/*", "http://*.lastfm.se/*", "http://*.lastfm.com.tr/*"]
       },{
