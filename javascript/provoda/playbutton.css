@@ -8,6 +8,7 @@
 	cursor: pointer;
 	position: relative;
 	top:2px;
+	box-sizing: content-box;
 }
 .play_button:hover {
 	border-color:#ccc;
@@ -23,7 +24,7 @@
 	border-color: #333;
 }
 .play_button_icon {
-	display: inline-block;
+	display: block;
 	background: no-repeat url(chrome-extension://__MSG_@@extension_id__/i/icon-untouched-16.png) 50% 50%;
 	height: 16px;
 	width: 16px;
@@ -41,7 +42,7 @@
 }
 
 .searching_files-base {
-	display: inline-block;
+	display: block;
 	
 	height: 16px;
 	width: 16px;
@@ -49,4 +50,21 @@
 }
 .searching_files-progress {
 	background: no-repeat url(chrome-extension://__MSG_@@extension_id__/i/spinner-16.gif) 50% 50%;
+}
+
+#content .chartlist .chartlist-play {
+	min-width: 64px;
+}
+
+.grid-items-item--artist .play_button,
+.grid-items-item .play_button{
+	position: absolute;
+	right: 16px;
+	top:16px;
+}
+
+.album-grid-item .play_button {
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
 }

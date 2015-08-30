@@ -38,16 +38,28 @@ BrowseMap.Model.extendTo(LFMPagePlalists, {
 		
 	},
 	updateLFMPData: function(data) {
-		this.updateLFMArtists(data.artists);
-		this.updateLFMPlaylists(data.playlists);
-		this.updateLFMAlbums(data.albums);
+
+		if (data.artists && data.artists.length) {
+			this.updateLFMArtists(data.artists);
+		}
+
+		if (data.playlists && data.playlists.length) {
+			this.updateLFMPlaylists(data.playlists);
+		}
+		
+		if (data.albums && data.albums.length) {
+			this.updateLFMAlbums(data.albums);
+		}
+		
 	},
 	updateLFMPlaylists: function(data) {
 		var list = this.getNesting('main_list') || [];
 		for (var i = 0; i < data.length; i++) {
-			if (!this.playlists_index[data[i][0]]) {
-				this.playlists_index[data[i][0]] = true;
-				list.push( this.map_parent.createLFMPagePlaylist(data[i]) );
+			var cur = data[i];
+			var id = cur[0];
+			if (!this.playlists_index[id]) {
+				this.playlists_index[id] = true;
+				list.push( this.map_parent.createLFMPagePlaylist(cur) );
 			}
 			
 			//list[i].updateState('item_num', i);

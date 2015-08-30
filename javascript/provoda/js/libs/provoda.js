@@ -583,7 +583,6 @@ SyncReceiver.prototype = {
 			var target_md_proxy = this.md_proxs_index[message._provoda_id];
 
 			var fakes_models = idToModel(this.models_index, message.value);
-			
 
 			target_model.children_models[message.name]= fakes_models;
 			//target_md_proxy.children_models[message.name] = fakes_models;

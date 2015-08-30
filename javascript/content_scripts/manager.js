@@ -227,7 +227,7 @@ MusicDomElement.prototype.injectSearch = function(){
             playlist_array[jj].playlist_num = playlist_num;
         }
 
-        views_storage.songs[playlist_num] = dom_index;
+        views_storage.playlists[playlist_num] = dom_index;
     }
 };
 

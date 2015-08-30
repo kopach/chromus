@@ -1,4 +1,4 @@
-define(['provoda', 'spv', 'angbo', 'jquery', 'js/views/LFMPageView'], function(provoda, spv, angbo, $, LFMPageView) {
+define(['provoda', 'spv', 'angbo', 'jquery', 'js/views/LFMPageView', './parser'], function(provoda, spv, angbo, $, LFMPageView, parser) {
 "use strict";
 //var big_index = {};
 
@@ -18,7 +18,7 @@ Stream.prototype.RPCLegacy = function(provoda_id, arguments_list) {
 	//console.log(md, arguments_list);
 };
 
-
+var views_storage = {};
 
 
 
@@ -49,6 +49,7 @@ var initPort = function() {
 
 	port.onMessage.addListener(function(data){
 		if (data && data.protocol == 'provoda'){
+
 			var result;
 			if (sync_r.actions[data.action]){
 				result = sync_r.actions[data.action].call(sync_r, data.message);
@@ -107,98 +108,36 @@ spv.domReady(document, function() {
 		return null;
 	};
 
-	// Tabs when switching in charts
-	if (window.MutationObserver) {
-		var i, cur, cur_parent;
-		var parents;
+	var storage = parser(window.document, views_storage);
 
-		var tabs = document.querySelectorAll('.horizontalOptions');		
-
-		var reportChanges = function() {
-			if (root_view) {
-				root_view.mpx.RPCLegacy('updateLFMPData', window.collected_data);
-			}
-		};
-
-		var bindClick = function(el, parent) {
-			el.addEventListener('click', function(){
-				setTimeout(function() {
-					window.manager.wrapMusicElements(parent);
-					reportChanges();
-				}, 100);
-			}, false);
-			
-		};
-
-		parents = [];
-		for (i=0; i<tabs.length; i++){
-			cur = tabs[i];
-			cur_parent = findParent(cur, 'module');
-			if (!cur_parent) {
-				continue;
-			}
-			if (cur_parent && parents.indexOf(cur_parent) == -1) {
-				parents.push( cur_parent );
-			}
-			bindClick(tabs[i], cur_parent);
-			/*tabs[i].addEventListener('click', function(){
-				setTimeout(function(){manager.wrapMusicElements(false)}, 1000)
-			}, false);*/
-		}
-		tabs = null;
-
-
-
-
-		var bindCons = function(parents) {
-			parents.forEach(function(el) {
-				var changesHandler = function() {
-					window.manager.wrapMusicElements(el);
-					reportChanges();
-				};
-				var mut_obr = new window.MutationObserver(changesHandler);
-				mut_obr.observe(el, {
-					childList: true
-				//	subtree: true
-				});
-				//window.manager.wrapMusicElements();
-			});
-		};
-		bindCons(parents);
-
-		var page_switchers = document.querySelectorAll('.nextPage, .previousPage');
-		if (page_switchers.length) {
-			parents = [];
-
-			var pages_cons = document.querySelectorAll('#pages .page');
-
-			for (i = 0; i < pages_cons.length; i++) {
-				
-				cur_parent = pages_cons[i] && pages_cons[i].parentNode;
-				if (cur_parent && parents.indexOf(cur_parent) == -1) {
-					parents.push( cur_parent );
-				}
-			}
-			bindCons(parents);
-			
-
-
-		}
-
-		/*for (var i = 0; i < page_switchers.length; i++) {
-			bindClick(page_switchers[i]);
-		}*/
-
-	}
-	
-
-	window.manager.wrapMusicElements();
+	window.collected_data = storage.data;
 
 	parsed = true;
 	current_port.postMessage({
 		action: 'init_sender',
 		message: window.collected_data
 	});
+
+	var content_node = document.querySelector('div#content');
+
+	if (content_node && window.MutationObserver) {
+		var mut_obr = new window.MutationObserver(function() {
+
+
+			var storage = parser(window.document, views_storage);
+
+			window.collected_data = storage.data;
+			window.views_storage = storage.views;
+
+			if (root_view) {
+				root_view.mpx.RPCLegacy('updateLFMPData', window.collected_data);
+			}
+		});
+		mut_obr.observe(content_node, {
+			childList: true
+		//	subtree: true
+		});
+	}
 
 
 });
