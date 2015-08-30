@@ -15,7 +15,7 @@ var standart_props = {
 VkRawSearch.prototype = {
 	constructor: VkRawSearch,
 	name: "vk",
-	description: 'vkontakte.ru',
+	description: 'vk.com',
 	slave: false,
 	preferred: null,
 	//q: p.queue,
@@ -56,7 +56,7 @@ VkRawSearch.prototype = {
 
 		var wrap_def = wrapRequest({
 			url: 'https://vk.com/audio',
-			type: "GET",
+			type: "POST",
 			dataType: 'text',
 			data: {
 				act: 'search',
