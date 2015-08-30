@@ -279,6 +279,7 @@ provoda.HModel.extendTo(MfCor, {
 		return false;
 	},
 	loadVideos: function() {
+		return;
 		if (this.videos_loaded){
 			return this;
 		}
